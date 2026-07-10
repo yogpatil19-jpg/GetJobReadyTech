@@ -34,7 +34,7 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && request.auth.uid in [
         // Replace with the real UID(s) from Firebase Console → Authentication → Users.
-        'REPLACE_WITH_YOUR_ADMIN_UID'
+        'kiNNwWBjogYNoPp9SvCERQGG6033'
       ];
     }
 
