@@ -32,27 +32,69 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   refreshConversions();
 });
 
-// Success view via ?enrolled=<id>
-function checkSuccessParam() {
+// Success view via ?enrolled=<id>&session_id=<stripe checkout session id>
+async function checkSuccessParam() {
   const params = new URLSearchParams(window.location.search);
   const enrolledId = params.get('enrolled');
-  if (enrolledId) {
-    const course = courses.find(c => c.id === enrolledId);
-    if (course) {
-      document.getElementById('successTitle').textContent = `You're enrolled in ${course.title}`;
-      document.getElementById('successText').textContent =
-        course.whatsapp
-          ? `Tap below to join the course WhatsApp group.`
-          : `The WhatsApp link for this course hasn't been added yet — add it in Settings.`;
-      const waBtn = document.getElementById('waBtn');
-      if (course.whatsapp) {
-        waBtn.href = course.whatsapp;
-        waBtn.style.display = 'inline-block';
-      } else {
-        waBtn.style.display = 'none';
-      }
-      document.getElementById('successView').classList.add('open');
+  const sessionId = params.get('session_id');
+  if (!enrolledId) return;
+
+  const course = courses.find(c => c.id === enrolledId);
+  const titleEl = document.getElementById('successTitle');
+  const textEl = document.getElementById('successText');
+  const waBtn = document.getElementById('waBtn');
+  const qrImg = document.getElementById('successQr');
+  const emailNote = document.getElementById('successEmailNote');
+
+  if (!course) return;
+
+  // No session_id means someone just landed on this URL without actually
+  // paying (e.g. an old bookmark) — don't claim payment succeeded.
+  if (!sessionId) {
+    titleEl.textContent = `Enrollment page — ${course.title}`;
+    textEl.textContent = 'We could not verify a payment for this link.';
+    waBtn.style.display = 'none';
+    qrImg.style.display = 'none';
+    document.getElementById('successView').classList.add('open');
+    return;
+  }
+
+  titleEl.textContent = 'Checking your payment…';
+  textEl.textContent = '';
+  waBtn.style.display = 'none';
+  qrImg.style.display = 'none';
+  document.getElementById('successView').classList.add('open');
+
+  try {
+    const res = await fetch(`/api/session-status?session_id=${encodeURIComponent(sessionId)}`);
+    const data = await res.json();
+
+    if (!res.ok || !data.paid) {
+      titleEl.textContent = 'Payment not confirmed yet';
+      textEl.textContent = "We couldn't confirm this payment. If you were charged, please contact us with your email address and we'll sort it out.";
+      return;
     }
+
+    titleEl.textContent = `You're enrolled in ${data.courseTitle || course.title}`;
+    textEl.textContent = data.whatsappLink
+      ? 'Tap below to join the course WhatsApp group.'
+      : "The WhatsApp link for this course hasn't been added yet — we'll send it to you separately.";
+
+    if (data.whatsappLink) {
+      waBtn.href = data.whatsappLink;
+      waBtn.style.display = 'inline-block';
+    }
+    if (data.qrDataUrl) {
+      qrImg.src = data.qrDataUrl;
+      qrImg.style.display = 'inline-block';
+    }
+    emailNote.textContent = data.emailSent
+      ? `A receipt with this QR code has also been emailed to you.`
+      : `Your receipt email is on its way — check your inbox shortly.`;
+  } catch (e) {
+    console.error('[success] Could not verify session:', e);
+    titleEl.textContent = 'Payment received';
+    textEl.textContent = "We're finalizing your enrollment — check your email shortly for the WhatsApp link.";
   }
 }
 document.getElementById('backBtn').addEventListener('click', () => {

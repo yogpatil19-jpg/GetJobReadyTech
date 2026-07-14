@@ -91,7 +91,7 @@ async function refreshConversions() {
 (async function init() {
   populateCurrencySelect();
   await loadCourses();
-  checkSuccessParam();
+  await checkSuccessParam();
   detectLocation();
 
   const yearEl = document.getElementById('year');

@@ -23,12 +23,12 @@
  * every REPLACE_ME_* value below.
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyCGzuAozvKKJd5riakC4BM-KXiYEjl8rKA",
-  authDomain: "getjobreadytech.firebaseapp.com",
-  projectId: "getjobreadytech",
-  storageBucket: "getjobreadytech.firebasestorage.app",
-  messagingSenderId: "444193231489",
-  appId: "1:444193231489:web:74414221a2bdf32745b380",
+  apiKey: "REPLACE_ME_API_KEY",
+  authDomain: "REPLACE_ME_PROJECT_ID.firebaseapp.com",
+  projectId: "REPLACE_ME_PROJECT_ID",
+  storageBucket: "REPLACE_ME_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 };
 
 (function () {

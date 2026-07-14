@@ -18,6 +18,7 @@ const defaultCourses = [
     fee: '199',
     currency: 'USD',
     paymentLink: '',
+    stripePriceId: '',
     whatsapp: ''
   },
   {
@@ -29,6 +30,7 @@ const defaultCourses = [
     fee: '249',
     currency: 'USD',
     paymentLink: '',
+    stripePriceId: '',
     whatsapp: ''
   }
 ];
@@ -67,7 +69,7 @@ function renderCourses() {
   courses.forEach(c => {
     const card = document.createElement('div');
     card.className = 'card reveal';
-    const hasLink = c.paymentLink && c.paymentLink.trim().length > 0;
+    const hasLink = c.stripePriceId && c.stripePriceId.trim().length > 0;
     card.innerHTML = `
       <div class="card-glow"></div>
       <div class="stage-id mono">${escapeHtml(c.stageId)}</div>
@@ -97,8 +99,8 @@ function renderCourses() {
   document.querySelectorAll('.enroll').forEach(btn => {
     btn.addEventListener('click', () => {
       const course = courses.find(c => c.id === btn.dataset.id);
-      if (course && course.paymentLink) {
-        window.open(course.paymentLink, '_blank');
+      if (course && course.stripePriceId && window.KCEnroll) {
+        window.KCEnroll.open(course);
       }
     });
   });
@@ -110,7 +112,6 @@ function renderForms() {
   courses.forEach((c, idx) => {
     const block = document.createElement('div');
     block.className = 'course-block';
-    const redirectUrl = `${window.location.origin}${window.location.pathname}?enrolled=${c.id}`;
     block.innerHTML = `
       <h4>${escapeHtml(c.title)}</h4>
       <div class="field">
@@ -144,16 +145,15 @@ function renderForms() {
         </div>
       </div>
       <div class="field">
-        <label>Payment link (from your gateway)</label>
-        <input data-idx="${idx}" data-key="paymentLink" placeholder="https://buy.stripe.com/..." value="${escapeAttr(c.paymentLink)}">
+        <label>Stripe Price ID <span class="field-hint">(from Stripe Dashboard → Product catalog → your price — looks like "price_1AbC...")</span></label>
+        <input data-idx="${idx}" data-key="stripePriceId" placeholder="price_1AbCdEfGhIjKlMnOp" value="${escapeAttr(c.stripePriceId)}">
       </div>
       <div class="field">
         <label>WhatsApp group invite link</label>
         <input data-idx="${idx}" data-key="whatsapp" placeholder="https://chat.whatsapp.com/..." value="${escapeAttr(c.whatsapp)}">
       </div>
       <div class="field">
-        <label>Redirect-after-payment URL to set in your gateway</label>
-        <div class="redirect-url">${redirectUrl}</div>
+        <label class="field-hint">Fee/currency above are for display only — the actual amount charged comes from the Stripe Price ID. Keep them in sync manually when you change pricing in Stripe.</label>
       </div>
     `;
     container.appendChild(block);
