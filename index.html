@@ -416,6 +416,10 @@
     </div>
     <div id="courseForms"></div>
     <button class="save-btn" id="saveBtn">Save changes</button>
+
+    <h4 class="panel-subhead">Enrollment &amp; receipt email</h4>
+    <div id="enrollmentSettingsForm"></div>
+    <button class="save-btn" id="enrollmentSettingsSaveBtn">Save enrollment settings</button>
   </div>
 </div>
 
@@ -447,8 +451,56 @@
   <div class="success-icon"><i class="fa-solid fa-check"></i></div>
   <h1 id="successTitle">Payment received</h1>
   <p id="successText"></p>
+  <img id="successQr" class="success-qr" alt="Scan to join the WhatsApp group" style="display:none">
   <a href="#" id="waBtn" class="wa-btn" target="_blank"><i class="fa-brands fa-whatsapp"></i> Join the WhatsApp group</a>
+  <p class="success-email-note" id="successEmailNote"></p>
   <button class="back-link" id="backBtn">Back to courses</button>
+</div>
+
+<!-- Enrollment form -->
+<div class="overlay" id="enrollOverlay"></div>
+<div class="admin-login-modal enroll-modal" id="enrollModal">
+  <div class="panel-head">
+    <h3>Enroll</h3>
+    <button class="close-btn" id="enrollCloseBtn" aria-label="Close">✕</button>
+  </div>
+  <form class="admin-login-form" id="enrollForm">
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" id="enrollName" required maxlength="120" autocomplete="name">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="enrollEmail" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Phone number</label>
+      <div class="phone-row">
+        <select id="enrollCountryCode" aria-label="Country code"></select>
+        <input type="tel" id="enrollPhoneNumber" placeholder="21 123 4567" required autocomplete="tel-national">
+      </div>
+    </div>
+    <div class="field">
+      <label>Comments — what do you expect from this course?</label>
+      <textarea id="enrollComments" maxlength="1000" rows="3"></textarea>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="enrollTerms" required>
+      <span>I accept the <a href="#" id="enrollTermsLink" target="_blank" rel="noopener">Terms &amp; Conditions</a>.</span>
+    </label>
+    <label class="checkbox-row">
+      <input type="checkbox" id="enrollWhatsapp">
+      <span>I'm on WhatsApp and okay to receive updates about this course.</span>
+    </label>
+    <label class="checkbox-row">
+      <input type="checkbox" id="enrollConfirm" required>
+      <span>I've checked my details above and confirm they're correct.</span>
+    </label>
+
+    <div class="admin-login-error" id="enrollError"></div>
+    <button type="submit" class="save-btn" id="enrollSubmitBtn">Proceed to pay</button>
+  </form>
 </div>
 
 <!-- Floating WhatsApp contact — placeholder number, edit before publishing -->
@@ -469,7 +521,10 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/country-codes.js"></script>
 <script src="js/courses.js"></script>
+<script src="js/enrollment-settings.js"></script>
+<script src="js/enroll.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/faq.js"></script>

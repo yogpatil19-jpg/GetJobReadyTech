@@ -34,34 +34,26 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && request.auth.uid in [
         // Replace with the real UID(s) from Firebase Console → Authentication → Users.
-        'kiNNwWBjogYNoPp9SvCERQGG6033'
+        'REPLACE_WITH_YOUR_ADMIN_UID'
       ];
     }
-
-    // OPTIONAL, STRICTER VERSION — checks that the current sign-in token was
-    // actually produced by a second-factor sign-in, not just that the UID is
-    // on the allowlist. This is real defense-in-depth: it protects you even
-    // if a stale/pre-MFA session token were ever replayed.
-    //
-    // ⚠️ I have not verified `request.auth.token.firebase.sign_in_second_factor`
-    // against Firestore's current Rules docs — check
-    // https://firebase.google.com/docs/auth/web/multi-factor before switching
-    // to this version, and test it in the Rules Playground first. If you
-    // enable this and something about MFA breaks, you could lock yourself
-    // out of writes from the app (you'd still have Firebase Console access
-    // to fix rules directly — see js/auth.js "BREAK-GLASS" note).
-    //
-    // function isAdmin() {
-    //   return request.auth != null
-    //     && request.auth.uid in ['REPLACE_WITH_YOUR_ADMIN_UID']
-    //     && request.auth.token.firebase.sign_in_second_factor != null;
-    // }
 
     // Public course/config data: anyone can read (that's how the page
     // pulls its content on load), only allowlisted admins can write.
     match /site-config/{docId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Enrollment leads (name/email/phone/comments captured at checkout,
+    // plus payment status). These are written ONLY by the Vercel
+    // serverless functions using the Firebase Admin SDK — which bypasses
+    // these rules entirely (Admin SDK always has full access, by design).
+    // This explicit deny is defense-in-depth: it guarantees the browser's
+    // Firestore SDK can never read or write lead data directly, even if
+    // a future code change accidentally tried to.
+    match /leads/{leadId} {
+      allow read, write: if false;
     }
 
     // Deny everything else by default.
