@@ -23,14 +23,19 @@ const nodemailer = require('nodemailer');
 
 function getTransport() {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-    throw new Error('SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS must all be set.');
+  const missing = [];
+  if (!SMTP_HOST) missing.push('SMTP_HOST');
+  if (!SMTP_PORT) missing.push('SMTP_PORT');
+  if (!SMTP_USER) missing.push('SMTP_USER');
+  if (!SMTP_PASS) missing.push('SMTP_PASS');
+  if (missing.length) {
+    throw new Error(`Missing environment variable(s): ${missing.join(', ')}. Check Vercel → Settings → Environment Variables includes these for the Production environment, and that you redeployed after adding them.`);
   }
   return nodemailer.createTransport({
-    host: SMTP_HOST,
+    host: SMTP_HOST.trim(),
     port: Number(SMTP_PORT),
     secure: Number(SMTP_PORT) === 465, // true for 465, false for 587/25 (STARTTLS)
-    auth: { user: SMTP_USER, pass: SMTP_PASS }
+    auth: { user: SMTP_USER.trim(), pass: SMTP_PASS.trim() }
   });
 }
 
