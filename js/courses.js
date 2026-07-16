@@ -19,7 +19,8 @@ const defaultCourses = [
     currency: 'USD',
     paymentLink: '',
     stripePriceId: '',
-    whatsapp: ''
+    whatsapp: '',
+    visible: true
   },
   {
     id: 'developer',
@@ -31,7 +32,8 @@ const defaultCourses = [
     currency: 'USD',
     paymentLink: '',
     stripePriceId: '',
-    whatsapp: ''
+    whatsapp: '',
+    visible: true
   }
 ];
 
@@ -66,7 +68,7 @@ function currencySymbol(code) {
 function renderCourses() {
   const grid = document.getElementById('coursesGrid');
   grid.innerHTML = '';
-  courses.forEach(c => {
+  courses.filter(c => c.visible !== false).forEach(c => {
     const card = document.createElement('div');
     card.className = 'card reveal';
     const hasLink = c.stripePriceId && c.stripePriceId.trim().length > 0;
@@ -104,7 +106,43 @@ function renderCourses() {
       }
     });
   });
+
+  renderHeroCourse();
 }
+
+// Populates the top-of-page split section: left = free demo session info,
+// right = enroll panel for course 1 (courses[0], regardless of its own
+// "visible" flag below — it's always the featured course up top).
+function renderHeroCourse() {
+  const c = courses[0];
+  const stageEl = document.getElementById('heroCourseStage');
+  const titleEl = document.getElementById('heroCourseTitle');
+  const descEl = document.getElementById('heroCourseDesc');
+  const priceEl = document.getElementById('heroCoursePrice');
+  const enrollBtn = document.getElementById('heroEnrollBtn');
+  const demoBtn = document.getElementById('heroDemoBtn');
+  if (!c || !titleEl) return; // hero markup not present on this page
+
+  stageEl.textContent = c.stageId;
+  titleEl.textContent = c.title;
+  descEl.textContent = c.desc;
+  priceEl.innerHTML = `<span class="cur mono">${escapeHtml(c.currency)}</span>${currencySymbol(c.currency)}${escapeHtml(c.fee)}`;
+
+  const hasLink = c.stripePriceId && c.stripePriceId.trim().length > 0;
+  enrollBtn.textContent = hasLink ? 'Enroll & Pay' : 'Not configured';
+  enrollBtn.classList.toggle('disabled', !hasLink);
+  enrollBtn.onclick = () => {
+    if (hasLink && window.KCEnroll) window.KCEnroll.open(c);
+  };
+
+  const demoLink = window.__KC_DEMO_LINK__ || '';
+  demoBtn.textContent = demoLink ? 'Book Free Demo Session' : 'Demo link not set';
+  demoBtn.classList.toggle('disabled', !demoLink);
+  demoBtn.onclick = () => {
+    if (demoLink) window.open(demoLink, '_blank', 'noopener');
+  };
+}
+window.renderHeroCourse = renderHeroCourse;
 
 function renderForms() {
   const container = document.getElementById('courseForms');
@@ -152,6 +190,10 @@ function renderForms() {
         <label>WhatsApp group invite link</label>
         <input data-idx="${idx}" data-key="whatsapp" placeholder="https://chat.whatsapp.com/..." value="${escapeAttr(c.whatsapp)}">
       </div>
+      <label class="checkbox-row">
+        <input type="checkbox" data-idx="${idx}" data-key="visible" ${c.visible !== false ? 'checked' : ''}>
+        <span>Show this course on the page ${idx === 0 ? '(also featured at the top of the page)' : ''}</span>
+      </label>
       <div class="field">
         <label class="field-hint">Fee/currency above are for display only — the actual amount charged comes from the Stripe Price ID. Keep them in sync manually when you change pricing in Stripe.</label>
       </div>
@@ -163,7 +205,9 @@ function renderForms() {
     el.addEventListener('input', () => {
       const idx = parseInt(el.dataset.idx);
       const key = el.dataset.key;
-      if (key === 'modules') {
+      if (el.type === 'checkbox') {
+        courses[idx][key] = el.checked;
+      } else if (key === 'modules') {
         courses[idx][key] = el.value.split(',').map(s => s.trim()).filter(Boolean);
       } else {
         courses[idx][key] = el.value;

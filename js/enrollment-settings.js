@@ -14,6 +14,7 @@ const ENROLLMENT_SETTINGS_KEY = 'site-enrollment-settings-v1';
 
 const defaultEnrollmentSettings = {
   termsUrl: '',
+  demoLink: '',
   emailSubject: 'Your enrollment receipt — {{courseTitle}}',
   emailBody:
 `Hi {{name}},
@@ -39,6 +40,8 @@ async function loadEnrollmentSettings() {
     enrollmentSettings = { ...defaultEnrollmentSettings };
   }
   window.__KC_TERMS_URL__ = enrollmentSettings.termsUrl || '';
+  window.__KC_DEMO_LINK__ = enrollmentSettings.demoLink || '';
+  if (typeof window.renderHeroCourse === 'function') window.renderHeroCourse();
   renderEnrollmentSettingsForm();
 }
 
@@ -46,6 +49,8 @@ async function saveEnrollmentSettings() {
   try {
     await window.storage.set(ENROLLMENT_SETTINGS_KEY, JSON.stringify(enrollmentSettings), true);
     window.__KC_TERMS_URL__ = enrollmentSettings.termsUrl || '';
+    window.__KC_DEMO_LINK__ = enrollmentSettings.demoLink || '';
+    if (typeof window.renderHeroCourse === 'function') window.renderHeroCourse();
     if (typeof showToast === 'function') showToast('Saved');
   } catch (e) {
     if (typeof showToast === 'function') showToast(e && e.message ? e.message : 'Save failed — try again');
@@ -61,6 +66,10 @@ function renderEnrollmentSettingsForm() {
       <input id="es-termsUrl" placeholder="https://yoursite.com/terms" value="${escapeAttr(enrollmentSettings.termsUrl)}">
     </div>
     <div class="field">
+      <label>Free demo session link <span class="field-hint">(Calendly, WhatsApp, mailto:, or any URL — powers the "Book Free Demo Session" button at the top of the page)</span></label>
+      <input id="es-demoLink" placeholder="https://calendly.com/..." value="${escapeAttr(enrollmentSettings.demoLink)}">
+    </div>
+    <div class="field">
       <label>Receipt email subject <span class="field-hint">(placeholders: {{name}}, {{courseTitle}}, {{amount}}, {{whatsappLink}})</span></label>
       <input id="es-emailSubject" value="${escapeAttr(enrollmentSettings.emailSubject)}">
     </div>
@@ -72,6 +81,7 @@ function renderEnrollmentSettingsForm() {
   container.querySelectorAll('input, textarea').forEach(el => {
     el.addEventListener('input', () => {
       if (el.id === 'es-termsUrl') enrollmentSettings.termsUrl = el.value;
+      if (el.id === 'es-demoLink') enrollmentSettings.demoLink = el.value;
       if (el.id === 'es-emailSubject') enrollmentSettings.emailSubject = el.value;
       if (el.id === 'es-emailBody') enrollmentSettings.emailBody = el.value;
     });
