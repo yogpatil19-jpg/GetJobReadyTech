@@ -3,20 +3,20 @@
    ============================================================= */
 
 :root{
-  --bg:#050816;
-  --bg-soft:#0A0F24;
-  --card:rgba(255,255,255,.04);
-  --card-hover:rgba(255,255,255,.07);
-  --border:rgba(255,255,255,.08);
-  --border-strong:rgba(255,255,255,.16);
-  --primary:#4F9CF9;
-  --secondary:#7DD3FC;
-  --accent:#8B5CF6;
-  --text:#F8FAFC;
-  --muted:#94A3B8;
-  --success:#22C55E;
-  --danger:#EF4444;
-  --warning:#F59E0B;
+  --bg:#F7F9FC;
+  --bg-soft:#FFFFFF;
+  --card:#FFFFFF;
+  --card-hover:#FBFCFE;
+  --border:rgba(17,24,39,.09);
+  --border-strong:rgba(17,24,39,.16);
+  --primary:#29B5E8;
+  --secondary:#11567F;
+  --accent:#1A85C9;
+  --text:#131826;
+  --muted:#5B6478;
+  --success:#1EA672;
+  --danger:#E5484D;
+  --warning:#F2B84B;
   --amber:#F2B84B;
   --radius:16px;
   --radius-sm:10px;
@@ -24,17 +24,18 @@
   --ease-out:cubic-bezier(.16,1,.3,1);
 }
 
-/* Optional light theme — toggled via <html class="light">.
-   Kept intentionally close in feel to the dark theme's contrast ratios. */
+/* Optional dark theme — toggled via <html class="light"> (kept as the
+   inverse name for backward compatibility with existing toggle code).
+   The default theme above is now the light, Snowflake-inspired look. */
 :root.light{
-  --bg:#F7F8FC;
-  --bg-soft:#FFFFFF;
-  --card:rgba(15,23,42,.035);
-  --card-hover:rgba(15,23,42,.06);
-  --border:rgba(15,23,42,.09);
-  --border-strong:rgba(15,23,42,.18);
-  --text:#0B1120;
-  --muted:#57607A;
+  --bg:#050816;
+  --bg-soft:#0A0F24;
+  --card:rgba(255,255,255,.04);
+  --card-hover:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);
+  --border-strong:rgba(255,255,255,.16);
+  --text:#F8FAFC;
+  --muted:#94A3B8;
 }
 
 *{box-sizing:border-box;}

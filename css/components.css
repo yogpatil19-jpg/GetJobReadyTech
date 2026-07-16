@@ -97,6 +97,32 @@ nav{
   background:radial-gradient(280px circle at var(--gx,50%) var(--gy,50%), rgba(125,211,252,.12), transparent 70%);
 }
 
+/* ---------- hero split: demo (left) / enroll course 1 (right) ---------- */
+.hero-split{padding:0 24px 60px;}
+.hero-split-inner{
+  max-width:var(--shell-max);margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.hero-panel{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:32px;
+  display:flex;flex-direction:column;
+}
+.hero-panel-eyebrow{
+  font-size:12px;letter-spacing:.1em;color:var(--secondary);
+  margin-bottom:14px;font-weight:600;
+}
+.hero-panel h3{
+  font-family:'Manrope',sans-serif;font-weight:700;
+  font-size:22px;margin:0 0 12px;
+}
+.hero-panel p{color:var(--muted);line-height:1.6;margin:0 0 22px;flex-grow:1;}
+.hero-panel-enroll{border-color:var(--primary);}
+.hero-price{
+  font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:500;
+  color:var(--primary);margin:0 0 18px;
+}
+
 /* ---------- courses (gradient-border pricing cards) ---------- */
 .courses{
   max-width:960px;margin:0 auto;
@@ -185,21 +211,33 @@ nav{
 }
 .convert-row .approx{color:var(--secondary);}
 .enroll{
-  background:linear-gradient(135deg, var(--primary), var(--accent));
+  background:var(--primary);
   color:#fff;
-  border:none;border-radius:11px;
-  padding:13px 24px;font-size:14px;font-weight:600;
+  border:none;border-radius:999px;
+  padding:13px 26px;font-size:14px;font-weight:600;
   cursor:pointer;font-family:'Inter',sans-serif;
-  transition:transform .15s ease, box-shadow .25s ease;
-  box-shadow:0 6px 18px -8px rgba(79,156,249,.5);
+  transition:transform .15s ease, box-shadow .25s ease, background .2s ease;
+  box-shadow:0 6px 18px -8px rgba(41,181,232,.55);
 }
-.enroll:hover{transform:translateY(-2px);box-shadow:0 10px 26px -6px rgba(139,92,246,.55);}
+.enroll:hover{transform:translateY(-2px);background:var(--accent);box-shadow:0 10px 26px -6px rgba(41,181,232,.6);}
 .enroll.disabled{
   background:var(--card);color:var(--muted);
   box-shadow:none;
   cursor:not-allowed;border:1px solid var(--border);
 }
-.enroll.disabled:hover{transform:none;box-shadow:none;}
+.enroll.disabled:hover{transform:none;box-shadow:none;background:var(--card);}
+
+.demo-btn{
+  background:transparent;
+  color:var(--secondary);
+  border:1.5px solid var(--border-strong);border-radius:999px;
+  padding:12px 24px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;align-self:flex-start;
+  transition:transform .15s ease, border-color .2s ease, background .2s ease;
+}
+.demo-btn:hover{transform:translateY(-2px);border-color:var(--primary);background:rgba(41,181,232,.06);}
+.demo-btn.disabled{color:var(--muted);cursor:not-allowed;}
+.demo-btn.disabled:hover{transform:none;border-color:var(--border-strong);background:transparent;}
 
 /* ---------- instructor ---------- */
 .instructor{
