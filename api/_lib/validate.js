@@ -50,4 +50,27 @@ function validateEnrollmentInput(body) {
   return { valid: errors.length === 0, errors, data: out };
 }
 
-module.exports = { validateEnrollmentInput, EMAIL_RE, PHONE_RE };
+function validateDemoRegistrationInput(body) {
+  const errors = [];
+  const out = {};
+
+  const firstName = String(body.firstName || '').trim();
+  if (!firstName) errors.push('First name is required.');
+  out.firstName = firstName.slice(0, MAX_NAME_LEN);
+
+  const lastName = String(body.lastName || '').trim();
+  if (!lastName) errors.push('Last name is required.');
+  out.lastName = lastName.slice(0, MAX_NAME_LEN);
+
+  const email = String(body.email || '').trim().toLowerCase();
+  if (!email || !EMAIL_RE.test(email)) errors.push('A valid email address is required.');
+  out.email = email;
+
+  const phone = String(body.phone || '').trim().replace(/[\s-]/g, '');
+  if (!PHONE_RE.test(phone)) errors.push('A valid phone number with country code is required.');
+  out.phone = phone;
+
+  return { valid: errors.length === 0, errors, data: out };
+}
+
+module.exports = { validateEnrollmentInput, validateDemoRegistrationInput, EMAIL_RE, PHONE_RE };
