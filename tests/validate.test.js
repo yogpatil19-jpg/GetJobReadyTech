@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { validateEnrollmentInput } = require('../api/_lib/validate');
+const { validateEnrollmentInput, validateDemoRegistrationInput } = require('../api/_lib/validate');
 
 test('rejects missing required fields', () => {
   const { valid, errors } = validateEnrollmentInput({});
@@ -81,4 +81,28 @@ test('requires a courseId', () => {
   });
   assert.equal(valid, false);
   assert.ok(errors.some(e => /course selection/.test(e)));
+});
+
+test('demo registration: accepts a valid submission', () => {
+  const { valid, errors, data } = validateDemoRegistrationInput({
+    firstName: 'Yogesh', lastName: 'Patil', email: 'Yog.Patil19@Gmail.com', phone: '+64 29 022 04004'
+  });
+  assert.equal(valid, true, errors.join(' '));
+  assert.equal(data.email, 'yog.patil19@gmail.com');
+});
+
+test('demo registration: rejects missing fields', () => {
+  const { valid, errors } = validateDemoRegistrationInput({});
+  assert.equal(valid, false);
+  assert.ok(errors.some(e => /First name/.test(e)));
+  assert.ok(errors.some(e => /Last name/.test(e)));
+  assert.ok(errors.some(e => /email/.test(e)));
+  assert.ok(errors.some(e => /phone/i.test(e)));
+});
+
+test('demo registration: rejects invalid phone/email same as enrollment', () => {
+  const bad = validateDemoRegistrationInput({
+    firstName: 'A', lastName: 'B', email: 'not-an-email', phone: '021234'
+  });
+  assert.equal(bad.valid, false);
 });
