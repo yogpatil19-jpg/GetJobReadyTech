@@ -20,7 +20,10 @@ const defaultCourses = [
     paymentLink: '',
     stripePriceId: '',
     whatsapp: '',
-    visible: true
+    demoLink: '',
+    showDemoButton: true,
+    showEnrollButton: true,
+    enabled: true
   },
   {
     id: 'developer',
@@ -33,7 +36,10 @@ const defaultCourses = [
     paymentLink: '',
     stripePriceId: '',
     whatsapp: '',
-    visible: true
+    demoLink: '',
+    showDemoButton: true,
+    showEnrollButton: true,
+    enabled: true
   }
 ];
 
@@ -68,10 +74,16 @@ function currencySymbol(code) {
 function renderCourses() {
   const grid = document.getElementById('coursesGrid');
   grid.innerHTML = '';
-  courses.filter(c => c.visible !== false).forEach(c => {
+  const visibleCourses = courses.filter(c => c.enabled !== false);
+  visibleCourses.forEach(c => {
     const card = document.createElement('div');
     card.className = 'card reveal';
     const hasLink = c.stripePriceId && c.stripePriceId.trim().length > 0;
+    const hasDemo = c.demoLink && c.demoLink.trim().length > 0;
+    // Flags default to true if never explicitly set (e.g. courses saved
+    // before this feature existed), so nothing disappears unexpectedly.
+    const demoEnabled = c.showDemoButton !== false;
+    const enrollEnabled = c.showEnrollButton !== false;
     card.innerHTML = `
       <div class="card-glow"></div>
       <div class="stage-id mono">${escapeHtml(c.stageId)}</div>
@@ -85,9 +97,18 @@ function renderCourses() {
           <div class="price"><span class="cur mono">${escapeHtml(c.currency)}</span>${currencySymbol(c.currency)}${escapeHtml(c.fee)}</div>
           <div class="convert-row" id="convert-${c.id}"></div>
         </div>
-        <button class="enroll ${hasLink ? '' : 'disabled'}" data-id="${c.id}">
-          ${hasLink ? 'Enroll &amp; Pay' : 'Not configured'}
-        </button>
+        <div class="card-buttons">
+          ${demoEnabled ? `
+            <button class="demo-btn ${hasDemo ? '' : 'disabled'}" data-demo-id="${c.id}">
+              ${hasDemo ? 'Book Free Demo Session' : 'Demo link not set'}
+            </button>
+          ` : ''}
+          ${enrollEnabled ? `
+            <button class="enroll ${hasLink ? '' : 'disabled'}" data-id="${c.id}">
+              ${hasLink ? 'Enroll &amp; Pay' : 'Not configured'}
+            </button>
+          ` : ''}
+        </div>
       </div>
     `;
     grid.appendChild(card);
@@ -98,6 +119,15 @@ function renderCourses() {
     window.KCAnimations.observeReveals();
   }
 
+  document.querySelectorAll('.demo-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const course = courses.find(c => c.id === btn.dataset.demoId);
+      if (course && course.demoLink) {
+        window.open(course.demoLink, '_blank', 'noopener');
+      }
+    });
+  });
+
   document.querySelectorAll('.enroll').forEach(btn => {
     btn.addEventListener('click', () => {
       const course = courses.find(c => c.id === btn.dataset.id);
@@ -107,42 +137,16 @@ function renderCourses() {
     });
   });
 
-  renderHeroCourse();
+  // "Choose Your Track" and FAQ visibility depends on both this course
+  // list AND the hero's manual override flag — see js/hero-settings.js,
+  // which owns that combined decision since it already tracks the manual
+  // flag. Guarded because hero-settings.js may not have finished loading
+  // its own settings yet on first paint; it re-runs this same check once
+  // it has, so the page ends up correct either way.
+  if (window.KCUpdateSectionVisibility) {
+    window.KCUpdateSectionVisibility();
+  }
 }
-
-// Populates the top-of-page split section: left = free demo session info,
-// right = enroll panel for course 1 (courses[0], regardless of its own
-// "visible" flag below — it's always the featured course up top).
-function renderHeroCourse() {
-  const c = courses[0];
-  const stageEl = document.getElementById('heroCourseStage');
-  const titleEl = document.getElementById('heroCourseTitle');
-  const descEl = document.getElementById('heroCourseDesc');
-  const priceEl = document.getElementById('heroCoursePrice');
-  const enrollBtn = document.getElementById('heroEnrollBtn');
-  const demoBtn = document.getElementById('heroDemoBtn');
-  if (!c || !titleEl) return; // hero markup not present on this page
-
-  stageEl.textContent = c.stageId;
-  titleEl.textContent = c.title;
-  descEl.textContent = c.desc;
-  priceEl.innerHTML = `<span class="cur mono">${escapeHtml(c.currency)}</span>${currencySymbol(c.currency)}${escapeHtml(c.fee)}`;
-
-  const hasLink = c.stripePriceId && c.stripePriceId.trim().length > 0;
-  enrollBtn.textContent = hasLink ? 'Enroll & Pay' : 'Not configured';
-  enrollBtn.classList.toggle('disabled', !hasLink);
-  enrollBtn.onclick = () => {
-    if (hasLink && window.KCEnroll) window.KCEnroll.open(c);
-  };
-
-  const demoLink = window.__KC_DEMO_LINK__ || '';
-  demoBtn.textContent = demoLink ? 'Book Free Demo Session' : 'Demo link not set';
-  demoBtn.classList.toggle('disabled', !demoLink);
-  demoBtn.onclick = () => {
-    if (demoLink) window.open(demoLink, '_blank', 'noopener');
-  };
-}
-window.renderHeroCourse = renderHeroCourse;
 
 function renderForms() {
   const container = document.getElementById('courseForms');
@@ -190,10 +194,24 @@ function renderForms() {
         <label>WhatsApp group invite link</label>
         <input data-idx="${idx}" data-key="whatsapp" placeholder="https://chat.whatsapp.com/..." value="${escapeAttr(c.whatsapp)}">
       </div>
+      <div class="field">
+        <label>Book Free Demo Session link <span class="field-hint">(Calendly, WhatsApp, mailto:, or any URL — opens in a new tab)</span></label>
+        <input data-idx="${idx}" data-key="demoLink" placeholder="https://calendly.com/..." value="${escapeAttr(c.demoLink)}">
+      </div>
       <label class="checkbox-row">
-        <input type="checkbox" data-idx="${idx}" data-key="visible" ${c.visible !== false ? 'checked' : ''}>
-        <span>Show this course on the page ${idx === 0 ? '(also featured at the top of the page)' : ''}</span>
+        <input type="checkbox" data-idx="${idx}" data-key="enabled" ${c.enabled !== false ? 'checked' : ''}>
+        <span><strong>Show this course on the website</strong> — unchecking removes its card, and if neither course is checked, the "Choose Your Track" and FAQ sections are hidden automatically.</span>
       </label>
+      <div class="row2">
+        <label class="checkbox-row">
+          <input type="checkbox" data-idx="${idx}" data-key="showDemoButton" ${c.showDemoButton !== false ? 'checked' : ''}>
+          <span>Show "Book Free Demo Session" button</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" data-idx="${idx}" data-key="showEnrollButton" ${c.showEnrollButton !== false ? 'checked' : ''}>
+          <span>Show "Enroll &amp; Pay" button</span>
+        </label>
+      </div>
       <div class="field">
         <label class="field-hint">Fee/currency above are for display only — the actual amount charged comes from the Stripe Price ID. Keep them in sync manually when you change pricing in Stripe.</label>
       </div>

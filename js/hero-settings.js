@@ -47,7 +47,6 @@ function applyHeroSettings() {
   const taglineEl = document.getElementById('heroTagline');
   const cityEl = document.getElementById('heroCity');
   const dateEl = document.getElementById('heroDate');
-  const coursesSection = document.getElementById('courses');
 
   if (eyebrowEl) eyebrowEl.textContent = heroSettings.eyebrow;
   if (titleEl) titleEl.innerHTML = escapeHtml(heroSettings.title).replace(/\n/g, '<br>');
@@ -55,16 +54,43 @@ function applyHeroSettings() {
   if (cityEl) cityEl.textContent = heroSettings.city;
   if (dateEl) dateEl.textContent = heroSettings.date;
 
-  if (coursesSection) {
-    coursesSection.style.display = heroSettings.hideChooseTrack ? 'none' : '';
-  }
-  // Keep the nav's "Courses" link consistent with whether that section
-  // actually exists on the page right now.
-  const coursesNavLink = document.querySelector('.nav-links a[href="#courses"]');
-  if (coursesNavLink) {
-    coursesNavLink.style.display = heroSettings.hideChooseTrack ? 'none' : '';
-  }
+  updateSectionVisibility();
 }
+
+/**
+ * Decides whether the "Choose Your Track" (#courses) and FAQ (#faq)
+ * sections should be visible. Hidden when EITHER:
+ *   - the admin manually checked "Hide the Choose Your Track section", OR
+ *   - no course currently has its "Show this course on the website"
+ *     checkbox checked (see js/courses.js — course.enabled).
+ * Called after both course data and hero settings have loaded — from
+ * whichever of js/courses.js / js/hero-settings.js finishes loading last,
+ * since either order is possible depending on network timing.
+ */
+function updateSectionVisibility() {
+  const coursesSection = document.getElementById('courses');
+  const faqSection = document.getElementById('faq');
+  const coursesNavLink = document.querySelector('.nav-links a[href="#courses"]');
+  const faqNavLink = document.querySelector('.nav-links a[href="#faq"]');
+
+  // `courses` is the shared global list from js/courses.js (both files are
+  // classic, non-module scripts, so a top-level `let` there is directly
+  // visible here by name — but note it would NOT show up as
+  // `window.courses`, since `let`/`const` don't attach to `window` the way
+  // `var` does). Guarded with typeof in case this ever runs before
+  // courses.js has executed.
+  const anyCourseEnabled = typeof courses !== 'undefined' && Array.isArray(courses)
+    ? courses.some(c => c.enabled !== false)
+    : true; // assume visible until we know otherwise, to avoid a flash of hidden content
+
+  const shouldHide = heroSettings.hideChooseTrack || !anyCourseEnabled;
+
+  if (coursesSection) coursesSection.style.display = shouldHide ? 'none' : '';
+  if (faqSection) faqSection.style.display = shouldHide ? 'none' : '';
+  if (coursesNavLink) coursesNavLink.style.display = shouldHide ? 'none' : '';
+  if (faqNavLink) faqNavLink.style.display = shouldHide ? 'none' : '';
+}
+window.KCUpdateSectionVisibility = updateSectionVisibility;
 
 async function saveHeroSettings() {
   try {
