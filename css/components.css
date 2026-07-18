@@ -66,16 +66,21 @@ nav{
 .btn-ghost:hover{background:var(--card-hover);border-color:var(--secondary);}
 
 /* ---------- event-style hero (inspired by Snowflake World Tour layout —
-   original copy/colors, not a reproduction of their assets) ---------- */
+   original copy/colors/markup, not a reproduction of their assets) ---------- */
 .event-hero{
   background:var(--primary);
-  padding:56px 24px 48px;
-  text-align:center;
+  padding:56px 24px;
   position:relative;
+  overflow:hidden;
 }
-.event-hero-inner{max-width:640px;margin:0 auto;}
+.event-hero-grid{
+  max-width:1180px;margin:0 auto;
+  display:grid;grid-template-columns:1.15fr .85fr;
+  gap:48px;align-items:center;
+}
+.event-hero-left{text-align:left;}
 .event-hero .eyebrow{
-  justify-content:center;
+  justify-content:flex-start;
   color:#0B1120;font-weight:700;letter-spacing:.08em;
   background:rgba(11,17,32,.08);
   display:inline-flex;
@@ -84,7 +89,7 @@ nav{
   font-family:'Plus Jakarta Sans',sans-serif;
   font-weight:800;
   text-transform:uppercase;
-  font-size:clamp(32px,7vw,58px);
+  font-size:clamp(32px,4.4vw,54px);
   line-height:1.05;
   letter-spacing:-0.01em;
   color:#0B1120;
@@ -94,37 +99,31 @@ nav{
   text-transform:uppercase;
   font-weight:700;
   letter-spacing:.03em;
-  font-size:clamp(14px,2.2vw,18px);
+  font-size:clamp(14px,1.6vw,17px);
   color:#0B1120;
-  margin:0 0 26px;
+  margin:0 0 24px;
 }
 .event-badge{
-  display:inline-block;
+  display:inline-flex;
   border:2px solid #0B1120;
   border-radius:8px;
   overflow:hidden;
-  margin:0 0 30px;
+  margin:0 0 26px;
   background:#fff;
 }
 .event-badge-top{
-  padding:9px 26px;
+  padding:9px 22px;
   font-weight:800;letter-spacing:.05em;
-  color:#0B1120;font-size:14px;
+  color:#0B1120;font-size:13px;
+  display:flex;align-items:center;
 }
 .event-badge-bottom{
-  padding:9px 26px;
+  padding:9px 22px;
   background:#0B1120;color:#fff;
-  font-weight:800;letter-spacing:.05em;font-size:14px;
+  font-weight:800;letter-spacing:.05em;font-size:13px;
+  display:flex;align-items:center;
 }
-.event-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
-.btn-event-primary{
-  background:#0B1120;color:#fff;
-  border:none;border-radius:999px;
-  padding:15px 30px;font-weight:700;font-size:15px;
-  cursor:pointer;font-family:'Inter',sans-serif;
-  transition:transform .15s ease, background .2s ease;
-}
-.btn-event-primary:hover{transform:translateY(-2px);background:#000;}
+.hero-secondary-link{display:inline-block;}
 .btn-event-ghost{
   background:transparent;color:#0B1120;
   border:2px solid #0B1120;border-radius:999px;
@@ -134,9 +133,46 @@ nav{
   display:inline-block;
 }
 .btn-event-ghost:hover{transform:translateY(-2px);background:rgba(11,17,32,.06);}
+
+/* Right-hand white registration card */
+.event-hero-card{
+  background:#fff;
+  border-radius:18px;
+  padding:30px 30px 26px;
+  box-shadow:0 30px 70px -24px rgba(11,17,32,.4);
+}
+.event-hero-card h3{
+  font-family:'Manrope',sans-serif;font-weight:700;
+  font-size:19px;color:#0B1120;text-align:center;
+  margin:0 0 22px;text-transform:uppercase;letter-spacing:.02em;
+}
+.event-hero-card .field label{color:#0B1120;}
+.event-hero-card .field input,
+.event-hero-card .field select{
+  background:#fff;border-color:rgba(11,17,32,.18);color:#0B1120;
+}
+.hero-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hero-form-submit{
+  width:100%;
+  background:#0B1120;color:#fff;
+  border-radius:999px;
+  margin-top:6px;
+}
+.hero-form-submit:hover{background:#000;}
+.hero-form-confirm{
+  text-align:center;color:#0B1120;font-weight:600;font-size:14.5px;
+  line-height:1.6;padding:12px 4px 4px;
+}
+.hero-form-confirm i{color:var(--success);margin-right:6px;}
+
+@media (max-width:900px){
+  .event-hero-grid{grid-template-columns:1fr;gap:32px;}
+  .event-hero-left{text-align:center;}
+  .event-hero .eyebrow{justify-content:center;}
+  .hero-secondary-link{display:block;text-align:center;}
+}
 @media (max-width:520px){
-  .event-ctas{flex-direction:column;align-items:stretch;}
-  .btn-event-primary,.btn-event-ghost{width:100%;}
+  .hero-form-row{grid-template-columns:1fr;}
 }
 
 /* ---------- courses (gradient-border pricing cards) ---------- */
