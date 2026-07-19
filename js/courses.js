@@ -240,5 +240,5 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 function escapeAttr(str) {
-  return (str == null ? '' : str).replace(/"/g, '&quot;');
+  return String(str == null ? '' : str).replace(/"/g, '&quot;');
 }
