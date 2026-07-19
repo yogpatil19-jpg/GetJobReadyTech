@@ -83,6 +83,8 @@ module.exports = async (req, res) => {
       lastName: data.lastName,
       name: `${data.firstName} ${data.lastName}`.trim(),
       email: data.email,
+      countryCode: data.countryCode,
+      phoneNumber: data.phoneNumber,
       phone: data.phone,
       termsAcceptedAt: serverTimestamp(),
       whatsappOptIn: data.whatsappOptIn,
@@ -107,7 +109,8 @@ module.exports = async (req, res) => {
       data.firstName,
       data.lastName,
       data.email,
-      data.phone,
+      data.countryCode,
+      data.phoneNumber,
       data.whatsappOptIn ? 'Yes' : 'No'
     ], DEMO_SHEET_TAB);
     await leadRef.update({ sheetSynced: true });
