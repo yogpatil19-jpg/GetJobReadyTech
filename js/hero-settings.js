@@ -24,7 +24,12 @@ const defaultHeroSettings = {
   tagline: 'MAKING YOU JOB-READY, FASTER',
   city: 'ONLINE',
   date: 'DATE TO BE ANNOUNCED',
-  hideChooseTrack: false
+  hideChooseTrack: false,
+  demoDateTime: '',       // "YYYY-MM-DDTHH:mm" wall-clock time, e.g. "2026-09-03T10:00"
+  demoUtcOffset: '+12:00', // e.g. "+12:00" for NZ — used to convert demoDateTime to exact UTC for the calendar invite
+  demoTimezoneLabel: 'NZST', // shown in the email text, purely cosmetic
+  demoDurationMinutes: 60,
+  calendarInviteLink: ''   // Zoom/Meet/Teams link included in the invite and email
 };
 
 let heroSettings = { ...defaultHeroSettings };
@@ -132,6 +137,35 @@ function renderHeroSettingsForm() {
       <input type="checkbox" id="hs-hideChooseTrack" ${heroSettings.hideChooseTrack ? 'checked' : ''}>
       <span>Hide the "Choose Your Track" courses section from the page</span>
     </label>
+
+    <h5 class="panel-subhead" style="margin-top:20px;border-top:none;padding-top:0;">Calendar invite (for demo registrations)</h5>
+    <div class="row2">
+      <div class="field">
+        <label>Session date &amp; time <span class="field-hint">(the exact wall-clock time — used to build the calendar invite, separate from the display badge above)</span></label>
+        <input type="datetime-local" id="hs-demoDateTime" value="${escapeAttr(heroSettings.demoDateTime)}">
+      </div>
+      <div class="field">
+        <label>UTC offset <span class="field-hint">(e.g. "+12:00" for NZ — must be correct or the invite will land at the wrong time)</span></label>
+        <input id="hs-demoUtcOffset" placeholder="+12:00" value="${escapeAttr(heroSettings.demoUtcOffset)}">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Timezone label <span class="field-hint">(shown in the email text only, e.g. "NZST")</span></label>
+        <input id="hs-demoTimezoneLabel" value="${escapeAttr(heroSettings.demoTimezoneLabel)}">
+      </div>
+      <div class="field">
+        <label>Duration (minutes)</label>
+        <input type="number" min="15" step="15" id="hs-demoDurationMinutes" value="${escapeAttr(heroSettings.demoDurationMinutes)}">
+      </div>
+    </div>
+    <div class="field">
+      <label>Calendar invite / join link <span class="field-hint">(Zoom, Google Meet, Teams — included in the invite and confirmation email)</span></label>
+      <input id="hs-calendarInviteLink" placeholder="https://meet.google.com/..." value="${escapeAttr(heroSettings.calendarInviteLink)}">
+    </div>
+    <div class="field">
+      <label class="field-hint">Leave "Session date &amp; time" blank to skip attaching a calendar invite — registrants will still get a confirmation email without one.</label>
+    </div>
   `;
   container.querySelectorAll('input, textarea').forEach(el => {
     el.addEventListener('input', () => {
@@ -141,7 +175,10 @@ function renderHeroSettingsForm() {
       }
       const map = {
         'hs-eyebrow': 'eyebrow', 'hs-title': 'title', 'hs-tagline': 'tagline',
-        'hs-city': 'city', 'hs-date': 'date'
+        'hs-city': 'city', 'hs-date': 'date',
+        'hs-demoDateTime': 'demoDateTime', 'hs-demoUtcOffset': 'demoUtcOffset',
+        'hs-demoTimezoneLabel': 'demoTimezoneLabel', 'hs-demoDurationMinutes': 'demoDurationMinutes',
+        'hs-calendarInviteLink': 'calendarInviteLink'
       };
       const key = map[el.id];
       if (key) heroSettings[key] = el.value;
@@ -166,7 +203,12 @@ function initHeroDemoForm() {
   const form = document.getElementById('heroDemoForm');
   const errorEl = document.getElementById('heroDemoError');
   const submitBtn = document.getElementById('heroDemoSubmitBtn');
+  const termsLink = document.getElementById('heroDemoTermsLink');
   if (!form) return;
+
+  if (termsLink && window.__KC_TERMS_URL__) {
+    termsLink.href = window.__KC_TERMS_URL__;
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -177,9 +219,20 @@ function initHeroDemoForm() {
     const email = document.getElementById('heroDemoEmail').value.trim();
     const dial = document.getElementById('heroDemoCountryCode').value;
     const localNumber = document.getElementById('heroDemoPhone').value.trim().replace(/[^\d]/g, '');
+    const termsAccepted = document.getElementById('heroDemoTerms').checked;
+    const whatsappOptIn = document.getElementById('heroDemoWhatsapp').checked;
+    const detailsConfirmed = document.getElementById('heroDemoConfirm').checked;
 
     if (!firstName || !lastName || !email || !localNumber) {
       errorEl.textContent = 'Please fill in all fields.';
+      return;
+    }
+    if (!termsAccepted) {
+      errorEl.textContent = 'Please accept the Terms & Conditions to continue.';
+      return;
+    }
+    if (!detailsConfirmed) {
+      errorEl.textContent = 'Please confirm your details are correct to continue.';
       return;
     }
 
@@ -191,7 +244,10 @@ function initHeroDemoForm() {
       const res = await fetch('/api/demo-registration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, email, phone })
+        body: JSON.stringify({
+          firstName, lastName, email, phone,
+          termsAccepted, detailsConfirmed, whatsappOptIn
+        })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not register — please try again.');
@@ -201,7 +257,7 @@ function initHeroDemoForm() {
       if (card) {
         const confirmEl = document.createElement('div');
         confirmEl.className = 'hero-form-confirm';
-        confirmEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Thanks, ${escapeHtml(firstName)}! You're registered for the free demo session — we'll be in touch by email.`;
+        confirmEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Thanks, ${escapeHtml(firstName)}! You're registered for the free demo session — check your email for confirmation and a calendar invite.`;
         card.appendChild(confirmEl);
       }
     } catch (err) {
