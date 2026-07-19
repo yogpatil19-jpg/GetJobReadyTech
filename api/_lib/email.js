@@ -108,4 +108,64 @@ async function sendReceiptEmail(opts) {
   });
 }
 
-module.exports = { sendReceiptEmail, fillTemplate, DEFAULT_SUBJECT, DEFAULT_BODY };
+const DEMO_DEFAULT_SUBJECT = 'You\'re registered — Free Snowflake Demo Session';
+const DEMO_DEFAULT_BODY = `Hi {{firstName}},
+
+You're registered for the free Snowflake demo session!
+
+{{sessionDetails}}
+
+We've attached a calendar invite — open it to add the session straight to your calendar.
+
+If you have any questions, just reply to this email.
+
+See you there!`;
+
+/**
+ * @param {object} opts
+ * @param {string} opts.to
+ * @param {string} opts.firstName
+ * @param {string} [opts.sessionDetailsText] - human-readable date/time/link summary, or empty if not configured
+ * @param {Buffer} [opts.icsBuffer] - .ics calendar invite, omitted if session date isn't configured
+ * @param {{subject?: string, body?: string}} [opts.template] - from Firestore config, optional
+ */
+async function sendDemoConfirmationEmail(opts) {
+  const transport = getTransport();
+  const vars = {
+    firstName: opts.firstName,
+    sessionDetails: opts.sessionDetailsText || 'We\'ll be in touch shortly with the session date and time.'
+  };
+
+  const subjectTemplate = (opts.template && opts.template.subject) || DEMO_DEFAULT_SUBJECT;
+  const bodyTemplate = (opts.template && opts.template.body) || DEMO_DEFAULT_BODY;
+
+  const subject = fillTemplate(subjectTemplate, vars);
+  const textBody = fillTemplate(bodyTemplate, vars);
+  const htmlBody = fillTemplate(escapeHtml(bodyTemplate), {
+    firstName: escapeHtml(vars.firstName),
+    sessionDetails: escapeHtml(vars.sessionDetails)
+  }).replace(/\n/g, '<br>');
+
+  const attachments = [];
+  if (opts.icsBuffer) {
+    attachments.push({
+      filename: 'demo-session.ics',
+      content: opts.icsBuffer,
+      contentType: 'text/calendar; method=PUBLISH; charset=UTF-8'
+    });
+  }
+
+  await transport.sendMail({
+    from: process.env.MAIL_FROM,
+    to: opts.to,
+    subject,
+    text: textBody,
+    html: htmlBody,
+    attachments
+  });
+}
+
+module.exports = {
+  sendReceiptEmail, sendDemoConfirmationEmail, fillTemplate,
+  DEFAULT_SUBJECT, DEFAULT_BODY, DEMO_DEFAULT_SUBJECT, DEMO_DEFAULT_BODY
+};

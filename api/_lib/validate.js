@@ -70,6 +70,12 @@ function validateDemoRegistrationInput(body) {
   if (!PHONE_RE.test(phone)) errors.push('A valid phone number with country code is required.');
   out.phone = phone;
 
+  if (body.termsAccepted !== true) errors.push('You must accept the Terms & Conditions to continue.');
+  if (body.detailsConfirmed !== true) errors.push('You must confirm your details are correct to continue.');
+  out.termsAccepted = true;
+  out.detailsConfirmed = true;
+  out.whatsappOptIn = body.whatsappOptIn === true;
+
   return { valid: errors.length === 0, errors, data: out };
 }
 
