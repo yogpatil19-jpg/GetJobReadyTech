@@ -236,7 +236,6 @@ function initHeroDemoForm() {
       return;
     }
 
-    const phone = `${dial}${localNumber}`;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Registering…';
 
@@ -245,7 +244,8 @@ function initHeroDemoForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName, lastName, email, phone,
+          firstName, lastName, email,
+          countryCode: dial, phoneNumber: localNumber,
           termsAccepted, detailsConfirmed, whatsappOptIn
         })
       });
