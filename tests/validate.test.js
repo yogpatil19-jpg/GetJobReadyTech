@@ -85,7 +85,8 @@ test('requires a courseId', () => {
 
 test('demo registration: accepts a valid submission', () => {
   const { valid, errors, data } = validateDemoRegistrationInput({
-    firstName: 'Yogesh', lastName: 'Patil', email: 'Yog.Patil19@Gmail.com', phone: '+64 29 022 04004'
+    firstName: 'Yogesh', lastName: 'Patil', email: 'Yog.Patil19@Gmail.com', phone: '+64 29 022 04004',
+    termsAccepted: true, detailsConfirmed: true, whatsappOptIn: true
   });
   assert.equal(valid, true, errors.join(' '));
   assert.equal(data.email, 'yog.patil19@gmail.com');
@@ -98,11 +99,36 @@ test('demo registration: rejects missing fields', () => {
   assert.ok(errors.some(e => /Last name/.test(e)));
   assert.ok(errors.some(e => /email/.test(e)));
   assert.ok(errors.some(e => /phone/i.test(e)));
+  assert.ok(errors.some(e => /Terms/.test(e)));
+  assert.ok(errors.some(e => /confirm your details/.test(e)));
 });
 
 test('demo registration: rejects invalid phone/email same as enrollment', () => {
   const bad = validateDemoRegistrationInput({
-    firstName: 'A', lastName: 'B', email: 'not-an-email', phone: '021234'
+    firstName: 'A', lastName: 'B', email: 'not-an-email', phone: '021234',
+    termsAccepted: true, detailsConfirmed: true
   });
   assert.equal(bad.valid, false);
+});
+
+test('demo registration: rejects when terms not accepted or details not confirmed', () => {
+  const noTerms = validateDemoRegistrationInput({
+    firstName: 'A', lastName: 'B', email: 'a@b.com', phone: '+64211234567',
+    termsAccepted: false, detailsConfirmed: true
+  });
+  assert.equal(noTerms.valid, false);
+
+  const noConfirm = validateDemoRegistrationInput({
+    firstName: 'A', lastName: 'B', email: 'a@b.com', phone: '+64211234567',
+    termsAccepted: true, detailsConfirmed: false
+  });
+  assert.equal(noConfirm.valid, false);
+});
+
+test('demo registration: whatsappOptIn defaults to false when omitted', () => {
+  const { data } = validateDemoRegistrationInput({
+    firstName: 'A', lastName: 'B', email: 'a@b.com', phone: '+64211234567',
+    termsAccepted: true, detailsConfirmed: true
+  });
+  assert.equal(data.whatsappOptIn, false);
 });
