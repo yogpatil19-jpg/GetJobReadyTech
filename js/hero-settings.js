@@ -29,7 +29,8 @@ const defaultHeroSettings = {
   demoUtcOffset: '+12:00', // e.g. "+12:00" for NZ — used to convert demoDateTime to exact UTC for the calendar invite
   demoTimezoneLabel: 'NZST', // shown in the email text, purely cosmetic
   demoDurationMinutes: 60,
-  calendarInviteLink: ''   // Zoom/Meet/Teams link included in the invite and email
+  calendarInviteLink: '',   // Zoom/Meet/Teams link included in the invite and email
+  whatsappGroupLink: ''     // WhatsApp group invite link for demo-session registrants
 };
 
 let heroSettings = { ...defaultHeroSettings };
@@ -164,6 +165,10 @@ function renderHeroSettingsForm() {
       <input id="hs-calendarInviteLink" placeholder="https://meet.google.com/..." value="${escapeAttr(heroSettings.calendarInviteLink)}">
     </div>
     <div class="field">
+      <label>WhatsApp group link (for demo registrants) <span class="field-hint">(included as a link and a QR code in the confirmation email)</span></label>
+      <input id="hs-whatsappGroupLink" placeholder="https://chat.whatsapp.com/..." value="${escapeAttr(heroSettings.whatsappGroupLink)}">
+    </div>
+    <div class="field">
       <label class="field-hint">Leave "Session date &amp; time" blank to skip attaching a calendar invite — registrants will still get a confirmation email without one.</label>
     </div>
   `;
@@ -178,7 +183,7 @@ function renderHeroSettingsForm() {
         'hs-city': 'city', 'hs-date': 'date',
         'hs-demoDateTime': 'demoDateTime', 'hs-demoUtcOffset': 'demoUtcOffset',
         'hs-demoTimezoneLabel': 'demoTimezoneLabel', 'hs-demoDurationMinutes': 'demoDurationMinutes',
-        'hs-calendarInviteLink': 'calendarInviteLink'
+        'hs-calendarInviteLink': 'calendarInviteLink', 'hs-whatsappGroupLink': 'whatsappGroupLink'
       };
       const key = map[el.id];
       if (key) heroSettings[key] = el.value;
