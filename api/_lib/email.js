@@ -117,6 +117,9 @@ You're registered for the free Snowflake demo session!
 
 We've attached a calendar invite — open it to add the session straight to your calendar.
 
+Join the course WhatsApp group here: {{whatsappLink}}
+(Or scan the QR code attached to this email.)
+
 If you have any questions, just reply to this email.
 
 See you there!`;
@@ -127,13 +130,16 @@ See you there!`;
  * @param {string} opts.firstName
  * @param {string} [opts.sessionDetailsText] - human-readable date/time/link summary, or empty if not configured
  * @param {Buffer} [opts.icsBuffer] - .ics calendar invite, omitted if session date isn't configured
+ * @param {string} [opts.whatsappLink] - WhatsApp group invite link, omitted if not configured
+ * @param {Buffer} [opts.whatsappQrPngBuffer] - QR code for the WhatsApp link, omitted if not configured
  * @param {{subject?: string, body?: string}} [opts.template] - from Firestore config, optional
  */
 async function sendDemoConfirmationEmail(opts) {
   const transport = getTransport();
   const vars = {
     firstName: opts.firstName,
-    sessionDetails: opts.sessionDetailsText || 'We\'ll be in touch shortly with the session date and time.'
+    sessionDetails: opts.sessionDetailsText || 'We\'ll be in touch shortly with the session date and time.',
+    whatsappLink: opts.whatsappLink || '(WhatsApp link not configured yet — contact us and we will send it.)'
   };
 
   const subjectTemplate = (opts.template && opts.template.subject) || DEMO_DEFAULT_SUBJECT;
@@ -143,7 +149,8 @@ async function sendDemoConfirmationEmail(opts) {
   const textBody = fillTemplate(bodyTemplate, vars);
   const htmlBody = fillTemplate(escapeHtml(bodyTemplate), {
     firstName: escapeHtml(vars.firstName),
-    sessionDetails: escapeHtml(vars.sessionDetails)
+    sessionDetails: escapeHtml(vars.sessionDetails),
+    whatsappLink: `<a href="${escapeHtml(vars.whatsappLink)}">${escapeHtml(vars.whatsappLink)}</a>`
   }).replace(/\n/g, '<br>');
 
   const attachments = [];
@@ -152,6 +159,13 @@ async function sendDemoConfirmationEmail(opts) {
       filename: 'demo-session.ics',
       content: opts.icsBuffer,
       contentType: 'text/calendar; method=PUBLISH; charset=UTF-8'
+    });
+  }
+  if (opts.whatsappQrPngBuffer) {
+    attachments.push({
+      filename: 'whatsapp-group-qr.png',
+      content: opts.whatsappQrPngBuffer,
+      cid: 'whatsapp-qr'
     });
   }
 
