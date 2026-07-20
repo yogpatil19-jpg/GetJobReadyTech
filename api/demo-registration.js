@@ -38,6 +38,7 @@ const { validateDemoRegistrationInput } = require('./_lib/validate');
 const { appendEnrollmentRow } = require('./_lib/googleSheets');
 const { sendDemoConfirmationEmail } = require('./_lib/email');
 const { buildDemoSessionIcs } = require('./_lib/calendarInvite');
+const { generateQrPngBuffer } = require('./_lib/qrcode');
 
 const HERO_SETTINGS_KEY = 'site-hero-settings-v1';
 const ENROLLMENT_SETTINGS_KEY = 'site-enrollment-settings-v1';
@@ -169,11 +170,22 @@ module.exports = async (req, res) => {
       console.warn('[demo-registration] Could not read email template settings:', e.message);
     }
 
+    let whatsappQrPngBuffer = null;
+    if (heroSettings.whatsappGroupLink) {
+      try {
+        whatsappQrPngBuffer = await generateQrPngBuffer(heroSettings.whatsappGroupLink);
+      } catch (e) {
+        console.warn('[demo-registration] WhatsApp QR generation failed, sending email without it:', e.message);
+      }
+    }
+
     await sendDemoConfirmationEmail({
       to: data.email,
       firstName: data.firstName,
       sessionDetailsText,
       icsBuffer,
+      whatsappLink: heroSettings.whatsappGroupLink || '',
+      whatsappQrPngBuffer,
       template
     });
     await leadRef.update({ emailSent: true });
