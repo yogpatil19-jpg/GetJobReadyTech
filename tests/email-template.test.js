@@ -34,15 +34,17 @@ test('demo confirmation default subject and body render with sample data', () =>
 
   const body = fillTemplate(DEMO_DEFAULT_BODY, {
     firstName: 'Priya',
-    sessionDetails: 'Date: 3 September 2026, 10:00 AM NZST\nJoin link: https://meet.google.com/abc'
+    sessionDetails: 'Date: 3 September 2026, 10:00 AM NZST\nJoin link: https://meet.google.com/abc',
+    whatsappLink: 'https://chat.whatsapp.com/DEMO123'
   });
   assert.match(body, /Hi Priya,/);
   assert.match(body, /3 September 2026/);
   assert.match(body, /meet\.google\.com\/abc/);
   assert.match(body, /calendar invite/);
+  assert.match(body, /chat\.whatsapp\.com\/DEMO123/);
 });
 
 test('demo confirmation body falls back gracefully when session details are missing', () => {
-  const body = fillTemplate(DEMO_DEFAULT_BODY, { firstName: 'Priya', sessionDetails: '' });
+  const body = fillTemplate(DEMO_DEFAULT_BODY, { firstName: 'Priya', sessionDetails: '', whatsappLink: '' });
   assert.match(body, /Hi Priya,/);
 });
