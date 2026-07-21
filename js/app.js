@@ -13,6 +13,12 @@
  */
 
 const CURRENCIES = ['USD', 'NZD', 'AUD', 'EUR', 'GBP', 'INR', 'CAD', 'SGD', 'JPY', 'CNY', 'ZAR', 'AED', 'CHF'];
+const CURRENCY_NAMES = {
+  USD: 'US Dollar', NZD: 'New Zealand Dollar', AUD: 'Australian Dollar', EUR: 'Euro',
+  GBP: 'British Pound', INR: 'Indian Rupee', CAD: 'Canadian Dollar', SGD: 'Singapore Dollar',
+  JPY: 'Japanese Yen', CNY: 'Chinese Yuan', ZAR: 'South African Rand', AED: 'UAE Dirham',
+  CHF: 'Swiss Franc'
+};
 let detectedCurrency = null;
 let detectedCountry = null;
 let overrideCurrency = null;
@@ -81,7 +87,8 @@ async function refreshConversions() {
     try {
       const rate = await getRate(c.currency, target);
       const converted = (parseFloat(c.fee) * rate).toFixed(2);
-      el.innerHTML = `≈ <span class="approx">${currencySymbol(target)}${converted} ${target}</span> · estimate only`;
+      const name = CURRENCY_NAMES[target] || target;
+      el.innerHTML = `Estimated ${escapeHtml(name)}: <span class="approx">${currencySymbol(target)}${converted} ${target}</span>`;
     } catch (e) {
       el.textContent = '';
     }

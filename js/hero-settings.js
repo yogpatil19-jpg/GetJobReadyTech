@@ -19,6 +19,7 @@
 const HERO_SETTINGS_KEY = 'site-hero-settings-v1';
 
 const defaultHeroSettings = {
+  brandText: 'KIWICRAFT // SNOWFLAKE TRAINING',
   eyebrow: 'SNOWFLAKE TRAINING · FREE DEMO SESSION',
   title: 'FREE SNOWFLAKE\nDEMO SESSION',
   tagline: 'MAKING YOU JOB-READY, FASTER',
@@ -48,12 +49,14 @@ async function loadHeroSettings() {
 }
 
 function applyHeroSettings() {
+  const brandTextEl = document.getElementById('siteBrandText');
   const eyebrowEl = document.getElementById('heroEyebrow');
   const titleEl = document.getElementById('heroTitle');
   const taglineEl = document.getElementById('heroTagline');
   const cityEl = document.getElementById('heroCity');
   const dateEl = document.getElementById('heroDate');
 
+  if (brandTextEl) brandTextEl.textContent = heroSettings.brandText;
   if (eyebrowEl) eyebrowEl.textContent = heroSettings.eyebrow;
   if (titleEl) titleEl.innerHTML = escapeHtml(heroSettings.title).replace(/\n/g, '<br>');
   if (taglineEl) taglineEl.textContent = heroSettings.tagline;
@@ -112,6 +115,10 @@ function renderHeroSettingsForm() {
   const container = document.getElementById('heroSettingsForm');
   if (!container) return;
   container.innerHTML = `
+    <div class="field">
+      <label>Site brand text (top-left header logo)</label>
+      <input id="hs-brandText" value="${escapeAttr(heroSettings.brandText)}">
+    </div>
     <div class="field">
       <label>Eyebrow label (small text above headline)</label>
       <input id="hs-eyebrow" value="${escapeAttr(heroSettings.eyebrow)}">
@@ -179,6 +186,7 @@ function renderHeroSettingsForm() {
         return;
       }
       const map = {
+        'hs-brandText': 'brandText',
         'hs-eyebrow': 'eyebrow', 'hs-title': 'title', 'hs-tagline': 'tagline',
         'hs-city': 'city', 'hs-date': 'date',
         'hs-demoDateTime': 'demoDateTime', 'hs-demoUtcOffset': 'demoUtcOffset',

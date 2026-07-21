@@ -110,6 +110,13 @@ function renderCourses() {
           ` : ''}
         </div>
       </div>
+      ${enrollEnabled ? `
+        <p class="payment-disclaimer">
+          We never see or store your card details — payments are processed securely by Stripe.
+          The local-currency price shown above is an estimate only; your bank or card provider
+          may apply a different exchange rate or additional fees at checkout.
+        </p>
+      ` : ''}
     `;
     grid.appendChild(card);
   });
