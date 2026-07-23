@@ -19,6 +19,11 @@ const CURRENCY_NAMES = {
   JPY: 'Japanese Yen', CNY: 'Chinese Yuan', ZAR: 'South African Rand', AED: 'UAE Dirham',
   CHF: 'Swiss Franc'
 };
+// Used if the free IP-geolocation lookup fails, times out, or gets
+// rate-limited — so the estimate never silently stays blank the way it did
+// before (see ipapi.co note below). USD is a reasonable universal default;
+// change this if most of your visitors are from one specific country.
+const FALLBACK_CURRENCY = 'USD';
 let detectedCurrency = null;
 let detectedCountry = null;
 let overrideCurrency = null;
@@ -52,7 +57,14 @@ async function detectLocation() {
       throw new Error('no currency in response');
     }
   } catch (e) {
-    geoText.textContent = 'Couldn\'t detect your location — pick a currency to see an estimate';
+    // Location detection failed (ipapi.co down, rate-limited, blocked by an
+    // ad/tracker blocker, etc. — this is a free third-party API with no
+    // uptime guarantee). Fall back to a default currency rather than
+    // leaving the estimate blank; the visitor can still override it
+    // manually with the currency dropdown either way.
+    detectedCurrency = FALLBACK_CURRENCY;
+    detectedCountry = '';
+    geoText.textContent = `Couldn't detect your location — showing an estimate in ${FALLBACK_CURRENCY}, or pick a currency below`;
   }
   refreshConversions();
 }
@@ -87,8 +99,7 @@ async function refreshConversions() {
     try {
       const rate = await getRate(c.currency, target);
       const converted = (parseFloat(c.fee) * rate).toFixed(2);
-      const name = CURRENCY_NAMES[target] || target;
-      el.innerHTML = `Estimated ${escapeHtml(name)}: <span class="approx">${currencySymbol(target)}${converted} ${target}</span>`;
+      el.innerHTML = `Estimated price in (${escapeHtml(target)}) <span class="approx">${currencySymbol(target)}${converted}</span>`;
     } catch (e) {
       el.textContent = '';
     }
