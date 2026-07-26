@@ -5,11 +5,21 @@
  * exactly from the original prototype — plus the page init sequence.
  *
  * Note on external dependencies: this relies on ipapi.co (IP geolocation)
- * and api.frankfurter.app (exchange rates), both free public APIs at the
- * time the original prototype was written. I have not re-verified their
- * current uptime, rate limits, or terms of service — check both before
- * relying on this in production, and keep the try/catch fallbacks in place
- * since either can go down or rate-limit independently of this code.
+ * and api.frankfurter.dev (exchange rates), both free public APIs. Neither
+ * requires an API key or authentication.
+ *
+ * IMPORTANT — exchange rate API domain: the original prototype used
+ * api.frankfurter.app, which is the Frankfurter project's legacy domain.
+ * Its current, actively documented public API lives at
+ * api.frankfurter.dev, using different query parameter names (`base` and
+ * `symbols` instead of the old `from` and `to`). The old `.app` domain's
+ * current reliability is uncertain — it may be deprecated, redirecting, or
+ * just intermittently flaky — and calling it with outdated parameter names
+ * was silently failing (caught by the try/catch below, leaving the
+ * estimate blank with no visible error). This file now calls the current
+ * documented endpoint directly. If you notice the estimate silently
+ * stops appearing again in the future, check
+ * https://frankfurter.dev/ for any further endpoint changes.
  */
 
 const CURRENCIES = ['USD', 'NZD', 'AUD', 'EUR', 'GBP', 'INR', 'CAD', 'SGD', 'JPY', 'CNY', 'ZAR', 'AED', 'CHF'];
@@ -73,7 +83,13 @@ async function getRate(base, target) {
   if (base === target) return 1;
   const key = base + '_' + target;
   if (rateCache[key]) return rateCache[key];
-  const res = await fetch(`https://api.frankfurter.app/latest?from=${base}&to=${target}`);
+  // api.frankfurter.dev/v1's documented `symbols` filter parameter was not
+  // something I could directly verify working end-to-end, so this
+  // deliberately requests the full rate table for the base currency
+  // (confirmed working via a live test) and picks the target out of it —
+  // slightly more data per request, but based on verified behavior rather
+  // than documentation alone.
+  const res = await fetch(`https://api.frankfurter.dev/v1/latest?base=${base}`);
   if (!res.ok) throw new Error('rate lookup failed');
   const data = await res.json();
   const rate = data.rates && data.rates[target];
@@ -101,6 +117,10 @@ async function refreshConversions() {
       const converted = (parseFloat(c.fee) * rate).toFixed(2);
       el.innerHTML = `Estimated price in (${escapeHtml(target)}) <span class="approx">${currencySymbol(target)}${converted}</span>`;
     } catch (e) {
+      // Log the real reason to the console rather than silently blanking —
+      // makes future issues with either API diagnosable from DevTools
+      // instead of just "the estimate mysteriously isn't showing".
+      console.warn('[currency-estimate] Conversion failed for', c.currency, '->', target, e);
       el.textContent = '';
     }
   }
