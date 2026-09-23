@@ -19,7 +19,7 @@
 const HERO_SETTINGS_KEY = 'site-hero-settings-v1';
 
 const defaultHeroSettings = {
-  brandText: 'KIWICRAFT // SNOWFLAKE TRAINING',
+  brandText: 'SNOWFLAKE TRAINING',
   eyebrow: 'SNOWFLAKE TRAINING · FREE DEMO SESSION',
   title: 'FREE SNOWFLAKE\nDEMO SESSION',
   tagline: 'MAKING YOU JOB-READY, FASTER',
@@ -33,6 +33,11 @@ const defaultHeroSettings = {
   calendarInviteLink: '',   // Zoom/Meet/Teams link included in the invite and email
   whatsappGroupLink: ''     // WhatsApp group invite link for demo-session registrants
 };
+
+/** The brand label used before it was shortened. Any saved settings still
+ *  holding this exact value are transparently upgraded to the new label, so
+ *  the header doesn't keep showing the old text from Firestore. */
+const LEGACY_BRAND_TEXT = 'KIWICRAFT // SNOWFLAKE TRAINING';
 
 let heroSettings = { ...defaultHeroSettings };
 
@@ -55,6 +60,10 @@ function applyHeroSettings() {
   const taglineEl = document.getElementById('heroTagline');
   const cityEl = document.getElementById('heroCity');
   const dateEl = document.getElementById('heroDate');
+
+  if (!heroSettings.brandText || heroSettings.brandText.trim() === LEGACY_BRAND_TEXT) {
+    heroSettings.brandText = defaultHeroSettings.brandText;
+  }
 
   if (brandTextEl) brandTextEl.textContent = heroSettings.brandText;
   if (eyebrowEl) eyebrowEl.textContent = heroSettings.eyebrow;

@@ -14,23 +14,47 @@ nav{
   position:sticky;top:0;z-index:30;
   display:flex;justify-content:space-between;align-items:center;
   padding:18px 32px;
-  background:rgba(5,8,22,.72);
+  /* Default theme is the light, Snowflake-inspired look (see style.css) —
+     so the default nav surface must be light too. The dark surface lives
+     under :root.light, which is the (confusingly named) dark theme. */
+  background:rgba(247,249,252,.86);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--border);
 }
-:root.light nav{background:rgba(247,248,252,.78);}
+:root.light nav{background:rgba(5,8,22,.78);}
+
+/* ---------- brand lockup ---------- */
 .brand{
+  display:inline-flex;align-items:center;gap:11px;
+  flex-shrink:0;
+}
+.brand-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow:0 4px 14px rgba(41,181,232,.35);
+  flex-shrink:0;
+}
+.brand-mark i{
+  color:#fff;font-size:17px;line-height:1;
+}
+.brand-text{
   font-family:'Plus Jakarta Sans',sans-serif;
   font-weight:800;
-  font-size:19px;
-  letter-spacing:-0.01em;
-  color:var(--text);
-  display:flex;align-items:center;gap:10px;
+  font-size:18px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  /* Solid, theme-aware colour — guaranteed contrast against the nav
+     surface in both themes. */
+  color:var(--secondary);
+  white-space:nowrap;
 }
-.brand i{color:var(--primary);font-size:21px;}
+:root.light .brand-text{color:#EAF6FD;}
 @media (max-width:520px){
-  .brand{font-size:15px;gap:7px;}
-  .brand i{font-size:17px;}
+  .brand{gap:8px;}
+  .brand-mark{width:29px;height:29px;border-radius:9px;}
+  .brand-mark i{font-size:14px;}
+  .brand-text{font-size:14.5px;letter-spacing:.04em;}
 }
 .nav-links{display:flex;align-items:center;gap:28px;}
 .nav-links a{
