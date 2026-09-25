@@ -328,8 +328,13 @@ function renderHeroSettingsForm() {
         <span class="rt-sep" aria-hidden="true"></span>
         <button type="button" class="rt-btn" data-rt-cmd="createLink" title="Add link" aria-label="Add link"><i class="fa-solid fa-link"></i></button>
         <button type="button" class="rt-btn" data-rt-cmd="removeFormat" title="Clear formatting" aria-label="Clear formatting"><i class="fa-solid fa-eraser"></i></button>
+        <span class="rt-sep" aria-hidden="true"></span>
+        <button type="button" class="rt-btn rt-btn-wide" data-rt-cmd="starter"
+                title="Insert a starter outline (only when the field is empty)">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Starter outline
+        </button>
       </div>
-      <div class="rt-editor" id="hs-courseDetailsEditor" contenteditable="true"
+      <div class="rt-editor rich-text rich-text-compact" id="hs-courseDetailsEditor" contenteditable="true"
            role="textbox" aria-multiline="true" aria-label="Course details rich text"></div>
       <span class="field-hint rt-note">Formatting is limited to headings, bold, italic, underline, lists, and links — anything else is stripped when saved.</span>
     </div>
@@ -399,6 +404,41 @@ function renderHeroSettingsForm() {
 // --- Course details rich-text editor (config panel) ------------------------
 
 /**
+ * Starting skeleton offered by the "Starter outline" toolbar button.
+ *
+ * It exists because the section only looks considered when the copy has
+ * shape — a lead paragraph, then headed blocks, then lists. Handed an empty
+ * box, it is easy to paste in one long wall of text, which no amount of CSS
+ * rescues. The placeholders are meant to be replaced, not kept.
+ *
+ * Deliberately uses only tags on RICH_TEXT_ALLOWED_TAGS, and is passed
+ * through the sanitizer like any other input rather than trusted.
+ */
+const COURSE_DETAILS_STARTER = [
+  '<p>One or two sentences on who this course is for and what they will be able to do by the end. This opening paragraph is styled as a lead, so keep it short and concrete.</p>',
+  '<h3>What you will learn</h3>',
+  '<ul>',
+  '<li>Replace each line with a specific, demonstrable outcome</li>',
+  '<li>Lead with the verb — "Configure role hierarchies", not "Understanding of roles"</li>',
+  '<li>Four to six lines reads best here</li>',
+  '</ul>',
+  '<h3>Who this is for</h3>',
+  '<ul>',
+  '<li>The role or job title this is aimed at</li>',
+  '<li>The level of experience assumed</li>',
+  '</ul>',
+  '<h3>Prerequisites</h3>',
+  '<p>What someone needs before day one, or state plainly that none are required.</p>',
+  '<h3>How the course runs</h3>',
+  '<ol>',
+  '<li>Format — live sessions, recordings, or both</li>',
+  '<li>Duration and schedule</li>',
+  '<li>What is included: labs, materials, support channel</li>',
+  '</ol>',
+  '<blockquote><p>Use a callout like this for the single most important thing a prospective student should know — a certification covered, a hiring outcome, or a cohort start date.</p></blockquote>'
+].join('');
+
+/**
  * Wires the small contenteditable editor and its toolbar.
  *
  * document.execCommand is formally deprecated, but it is still the only
@@ -442,6 +482,18 @@ function initCourseDetailsEditor() {
       btn.addEventListener('click', () => {
         const cmd = btn.dataset.rtCmd;
         editor.focus();
+
+        if (cmd === 'starter') {
+          // Refuses to overwrite rather than asking, so a stray click can
+          // never destroy copy that took a while to write.
+          if (!richTextIsEmpty(editor.innerHTML)) {
+            if (typeof showToast === 'function') showToast('Clear the field first to insert the outline');
+            return;
+          }
+          editor.innerHTML = sanitizeRichHtml(COURSE_DETAILS_STARTER);
+          sync();
+          return;
+        }
 
         if (cmd === 'createLink') {
           const url = window.prompt('Link URL (https://… or mailto:…)');
