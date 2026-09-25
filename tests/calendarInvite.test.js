@@ -28,7 +28,7 @@ test('buildDemoSessionIcs produces a valid, parseable RFC 5545 structure', () =>
     summary: 'Free Snowflake Demo Session',
     description: 'Join us for a live walkthrough.',
     location: 'https://meet.google.com/abc-defg-hij',
-    organizerEmail: 'training@kiwicraft.co.nz',
+    organizerEmail: 'training@example.com',
     attendeeEmail: 'test@example.com',
     attendeeName: 'Test User'
   });
@@ -39,7 +39,7 @@ test('buildDemoSessionIcs produces a valid, parseable RFC 5545 structure', () =>
   assert.match(ics, /DTEND:20260902T224500Z/);
   assert.match(ics, /SUMMARY:Free Snowflake Demo Session/);
   assert.match(ics, /LOCATION:https:\/\/meet\.google\.com\/abc-defg-hij/);
-  assert.match(ics, /ORGANIZER:mailto:training@kiwicraft\.co\.nz/);
+  assert.match(ics, /ORGANIZER:mailto:training@example\.com/);
   assert.match(ics, /ATTENDEE;CN=Test User;RSVP=TRUE:mailto:test@example\.com/);
 });
 

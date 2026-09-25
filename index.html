@@ -31,34 +31,46 @@
   object-src 'none';
   base-uri 'self';
 ">
-<title>Snowflake Training — KiwiCraft</title>
-<meta name="description" content="Two focused Snowflake training tracks: Identity & Access, and the Developer Stream. Enroll, pay securely, join the course WhatsApp group.">
+<!--
+  Link-preview text (WhatsApp, LinkedIn, Slack, iMessage, search results)
+  comes from the tags below. These MUST stay hardcoded here: preview
+  crawlers read the raw HTML and never run JavaScript, so anything driven
+  from Firestore is invisible to them. Editing this file is the only way to
+  change how a shared link looks — it is not settable from the config panel.
+
+  Keep the three description tags identical. Different scrapers prefer
+  different ones, and letting them drift means the same link reads
+  differently depending on where it is pasted.
+-->
+<title>Snowflake Training</title>
+<meta name="description" content="Master the Snowflake with AI Data Cloud: Expert-Led Courses &amp; Live Labs.">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Snowflake Training — KiwiCraft">
-<meta property="og:description" content="Two focused Snowflake training tracks: Identity & Access, and the Developer Stream.">
+<meta property="og:title" content="Snowflake Training">
+<meta property="og:description" content="Master the Snowflake with AI Data Cloud: Expert-Led Courses &amp; Live Labs.">
+<meta property="og:site_name" content="Snowflake Training">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://your-domain-here.example/">
+<meta property="og:url" content="https://get-job-ready-tech.vercel.app/">
 <meta property="og:image" content="assets/images/og-cover.jpg">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Snowflake Training — KiwiCraft">
-<meta name="twitter:description" content="Two focused Snowflake training tracks: Identity & Access, and the Developer Stream.">
+<meta name="twitter:title" content="Snowflake Training">
+<meta name="twitter:description" content="Master the Snowflake with AI Data Cloud: Expert-Led Courses &amp; Live Labs.">
 
-<link rel="canonical" href="https://your-domain-here.example/">
+<link rel="canonical" href="https://get-job-ready-tech.vercel.app/">
 
-<!-- Schema.org: Course markup — replace placeholder values before publishing -->
+<!-- Schema.org: Course markup -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Course",
-  "name": "Snowflake Training — KiwiCraft",
-  "description": "Two focused Snowflake training tracks: Identity & Access, and the Developer Stream.",
+  "name": "Snowflake Training",
+  "description": "Master the Snowflake with AI Data Cloud: Expert-Led Courses & Live Labs.",
   "provider": {
     "@type": "Organization",
-    "name": "KiwiCraft Property Services Limited",
-    "sameAs": "https://your-domain-here.example/"
+    "name": "Snowflake Training",
+    "sameAs": "https://get-job-ready-tech.vercel.app/"
   }
 }
 </script>
@@ -189,7 +201,7 @@
     <div class="section-head" id="chooseTrackHead">
       <div class="eyebrow"><span class="dot"></span>CHOOSE YOUR TRACK</div>
       <h2>Two tracks. Pick what fits your role.</h2>
-      <p>Prices shown are set by KiwiCraft and can be paid by card. Estimated local-currency prices below are for reference only.</p>
+      <p>Prices shown can be paid securely by card. Estimated local-currency prices below are for reference only.</p>
     </div>
 
     <div class="geo-bar">
@@ -236,10 +248,14 @@
     <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
     <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
   </div>
-  <p>Payments are handled by your payment provider's checkout page — this site never sees your card details.</p>
-  <p>Converted prices shown are estimates only. The currency and exact amount charged are confirmed at checkout.</p>
-  <p>© <span id="year"></span> KiwiCraft Property Services Limited. [Add your policies / terms links here.]</p>
-  <a href="#" id="adminTrigger" class="admin-trigger">Admin</a>
+  <!-- Footer copy is editable in Configuration → Footer (js/footer-settings.js).
+       The text below is the fallback shown before settings load, and if
+       Firestore is unreachable. Leaving a field blank in config hides
+       that line. -->
+  <p id="footerPaymentNote">Payments are handled by your payment provider's checkout page — this site never sees your card details.</p>
+  <p id="footerPriceNote">Converted prices shown are estimates only. The currency and exact amount charged are confirmed at checkout.</p>
+  <p id="footerLegalLine">© <span id="year"></span> <span id="footerLegalName">Snowflake Training</span><span id="footerLegalLinks"></span></p>
+  <a href="#" id="adminTrigger" class="admin-trigger">Snowflake</a>
 </footer>
 
 </div>
@@ -266,6 +282,10 @@
     <h4 class="panel-subhead">Hero banner</h4>
     <div id="heroSettingsForm"></div>
     <button class="save-btn" id="heroSettingsSaveBtn">Save hero banner</button>
+
+    <h4 class="panel-subhead">Footer</h4>
+    <div id="footerSettingsForm"></div>
+    <button class="save-btn" id="footerSettingsSaveBtn">Save footer</button>
 
     <h4 class="panel-subhead">Enrollment &amp; receipt email</h4>
     <div id="enrollmentSettingsForm"></div>
@@ -374,6 +394,7 @@
 <script src="js/country-codes.js"></script>
 <script src="js/courses.js"></script>
 <script src="js/hero-settings.js"></script>
+<script src="js/footer-settings.js"></script>
 <script src="js/enrollment-settings.js"></script>
 <script src="js/enroll.js"></script>
 <script src="js/animations.js"></script>

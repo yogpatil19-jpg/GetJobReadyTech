@@ -6,6 +6,13 @@
  * markup classes changed, not the IDs, data keys, or storage calls.
  */
 
+// NOT display text — this is the Firestore document ID holding the live
+// course data (pricing, Stripe price IDs, WhatsApp links). The old brand
+// name survives in it deliberately: renaming the key would point the site
+// at a document that does not exist, silently emptying the course cards and
+// breaking checkout. Changing it means migrating the document and updating
+// api/create-checkout-session.js, api/session-status.js and
+// api/stripe-webhook.js in the same deploy.
 const STORAGE_KEY = 'kiwicraft-snowflake-courses-v1';
 
 const defaultCourses = [

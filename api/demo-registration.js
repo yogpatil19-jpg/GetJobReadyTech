@@ -45,7 +45,7 @@ const ENROLLMENT_SETTINGS_KEY = 'site-enrollment-settings-v1';
 const DEMO_SHEET_TAB = 'DemoRegistration';
 
 /** Pulls the bare email address out of a MAIL_FROM value like
- *  '"KiwiCraft" <no-reply@example.com>' or a plain 'no-reply@example.com'. */
+ *  '"Snowflake Training" <no-reply@example.com>' or a plain 'no-reply@example.com'. */
 function extractEmailAddress(mailFrom) {
   if (!mailFrom) return undefined;
   const match = /<([^>]+)>/.exec(mailFrom);

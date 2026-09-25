@@ -72,7 +72,7 @@ function buildDemoSessionIcs(opts) {
   const durationMs = (opts.durationMinutes || 60) * 60000;
   const end = new Date(start.getTime() + durationMs);
   const now = new Date();
-  const uid = `demo-session-${start.getTime()}-${Math.random().toString(36).slice(2, 10)}@kiwicraft`;
+  const uid = `demo-session-${start.getTime()}-${Math.random().toString(36).slice(2, 10)}@snowflake-training`;
 
   const descriptionParts = [opts.description || 'Free Snowflake demo session.'];
   if (opts.location) descriptionParts.push(`Join link: ${opts.location}`);
@@ -80,7 +80,7 @@ function buildDemoSessionIcs(opts) {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//KiwiCraft//Demo Session//EN',
+    'PRODID:-//Snowflake Training//Demo Session//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
