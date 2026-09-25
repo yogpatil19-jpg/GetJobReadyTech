@@ -1,4 +1,4 @@
-# KiwiCraft — Snowflake Training Site
+# Snowflake Training Site
 
 Static site (HTML/CSS/JS, no build step) + Vercel serverless functions for
 enrollment, Stripe payment, and post-payment fulfillment.
