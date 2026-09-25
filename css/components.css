@@ -151,7 +151,6 @@ nav{
   font-weight:800;letter-spacing:.05em;font-size:13px;
   display:flex;align-items:center;
 }
-.hero-secondary-link{display:inline-block;}
 .btn-event-ghost{
   background:transparent;color:#0B1120;
   border:2px solid #0B1120;border-radius:999px;
@@ -161,6 +160,34 @@ nav{
   display:inline-block;
 }
 .btn-event-ghost:hover{transform:translateY(-2px);background:rgba(11,17,32,.06);}
+
+/* Paired hero CTAs — "See course details" (ghost) + "Enroll for course" (solid).
+   Either can be hidden from the config panel, so the row has to look right
+   with one button or two. */
+.hero-cta-row{
+  display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+}
+.hero-cta{
+  /* cursor + font-family are needed because one CTA is a <button> and the
+     other an <a>; without these they render with different type. */
+  cursor:pointer;font-family:'Inter',sans-serif;
+}
+.btn-event-solid{
+  background:#0B1120;color:#fff;
+  border:2px solid #0B1120;border-radius:999px;
+  padding:13px 28px;font-weight:700;font-size:15px;
+  text-decoration:none;
+  transition:transform .15s ease, background .2s ease;
+  display:inline-block;
+}
+.btn-event-solid:hover{transform:translateY(-2px);background:#000;}
+@media (max-width:900px){
+  .hero-cta-row{justify-content:center;}
+}
+@media (max-width:420px){
+  .hero-cta-row{flex-direction:column;align-items:stretch;}
+  .hero-cta{width:100%;text-align:center;}
+}
 
 /* Right-hand white registration card */
 .event-hero-card{
@@ -197,7 +224,6 @@ nav{
   .event-hero-grid{grid-template-columns:1fr;gap:32px;}
   .event-hero-left{text-align:center;}
   .event-hero .eyebrow{justify-content:center;}
-  .hero-secondary-link{display:block;text-align:center;}
 }
 @media (max-width:520px){
   .hero-form-row{grid-template-columns:1fr;}
@@ -483,6 +509,258 @@ nav{
 }
 .admin-trigger:hover{opacity:1;}
 .icon-btn#adminSignOutBtn{margin-right:6px;}
+
+/* ---------- course details section (on-page) ---------- */
+.course-details-section{
+  /* Sits directly under the hero, so it carries less top padding than the
+     default 96px section rhythm to avoid a large gap below the banner. */
+  padding-top:64px;
+}
+/* The heading takes focus when the hero button scrolls here (see
+   initCourseDetailsSection) — suppress the focus ring for that
+   programmatic case only, keyboard navigation is unaffected. */
+#courseDetailsHeading:focus{outline:none;}
+#courseDetailsHeading:focus-visible{outline:2px solid var(--secondary);outline-offset:4px;}
+
+/* Shell borrows the pricing cards' treatment (gradient wash, hairline
+   border, deep soft shadow) so the section reads as part of the same
+   system rather than a plain box of text. */
+.course-details-panel{
+  position:relative;
+  /* 800px less 52px padding each side leaves roughly 68 characters per
+     line at 16px — the comfortable measure for sustained reading. The
+     width lives here, not on .rich-text, because both classes sit on the
+     same element and .rich-text is also reused inside the config panel. */
+  max-width:800px;margin:0 auto;
+  background:linear-gradient(160deg, var(--card), rgba(255,255,255,.012));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:48px 52px;
+  box-shadow:0 30px 70px -42px rgba(11,17,32,.35);
+  overflow:hidden;
+}
+:root.light .course-details-panel{box-shadow:0 30px 70px -40px rgba(0,0,0,.6);}
+/* Brand hairline across the top edge. */
+.course-details-panel::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+}
+.course-details-actions{
+  max-width:800px;margin:28px auto 0;
+  display:flex;justify-content:center;
+}
+/* The hero's solid CTA is hardcoded dark (#0B1120) because the hero always
+   sits on a light banner. This section sits on var(--bg), which flips with
+   the theme, so its CTA uses the brand gradient instead — readable on both. */
+.btn-cta-gradient{
+  display:inline-block;
+  background:linear-gradient(135deg, var(--primary), var(--accent));
+  color:#fff;text-decoration:none;
+  border:none;border-radius:999px;
+  padding:14px 32px;font-weight:700;font-size:15px;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  box-shadow:0 10px 24px -10px rgba(41,181,232,.6);
+  transition:transform .15s ease, box-shadow .2s ease;
+}
+.btn-cta-gradient:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 30px -10px rgba(41,181,232,.7);
+}
+@media (max-width:640px){
+  .course-details-panel{padding:22px 20px;}
+  .course-details-actions .btn-cta-gradient{width:100%;text-align:center;}
+}
+
+/* =============================================================
+   Rendered rich text — the admin-authored course details.
+   -------------------------------------------------------------
+   This has to make freeform admin input look deliberate, because the
+   author only controls which tags they use, not any classes. So every
+   allowed tag carries its own finished treatment: headings get an accent
+   rule, bullets become check rows in the same language as the pricing
+   cards, quotes become callouts, and the opening paragraph reads as a
+   lead. Nothing here depends on a particular document structure.
+
+   The tag list must stay in sync with RICH_TEXT_ALLOWED_TAGS in
+   js/hero-settings.js — a tag styled here but not allow-listed there is
+   dead CSS, and one allowed there but missing here renders unstyled.
+   ============================================================= */
+.rich-text{
+  font-size:16px;line-height:1.8;color:var(--text);
+  /* Stops long URLs or code-like tokens blowing out the layout. */
+  overflow-wrap:break-word;
+}
+
+/* --- headings: accent rule + generous space above, so sections read as
+       distinct blocks without the author needing dividers --- */
+.rich-text h3, .rich-text h4{
+  font-family:'Manrope',sans-serif;
+  font-weight:700;color:var(--text);
+  letter-spacing:-.01em;line-height:1.3;
+}
+.rich-text h3{
+  position:relative;
+  font-size:21px;
+  margin:44px 0 16px;padding-left:18px;
+}
+.rich-text h3::before{
+  content:"";position:absolute;left:0;top:.18em;bottom:.18em;
+  width:4px;border-radius:2px;
+  background:linear-gradient(180deg, var(--primary), var(--secondary));
+}
+.rich-text h4{
+  font-size:16.5px;
+  margin:30px 0 10px;
+  color:var(--secondary);
+}
+/* No dead space at the very top, whatever tag the author opened with. */
+.rich-text > :first-child{margin-top:0;}
+
+/* --- paragraphs: opening one reads as a lead/standfirst --- */
+.rich-text p{margin:0 0 18px;}
+.rich-text > p:first-child{
+  font-size:17.5px;line-height:1.7;color:var(--muted);
+  margin-bottom:26px;
+}
+.rich-text strong, .rich-text b{
+  font-weight:650;color:var(--text);
+}
+.rich-text em, .rich-text i{color:var(--text);}
+
+/* --- bulleted lists: check rows, matching the pricing cards' .modules --- */
+.rich-text ul{list-style:none;margin:0 0 22px;padding:0;}
+.rich-text ul > li{
+  position:relative;
+  padding:11px 0 11px 30px;
+  border-bottom:1px solid var(--border);
+  font-size:15.5px;line-height:1.65;
+}
+.rich-text ul > li:first-child{border-top:1px solid var(--border);}
+.rich-text ul > li::before{
+  content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;
+  position:absolute;left:4px;top:13px;
+  font-size:11.5px;color:var(--success);
+}
+
+/* --- numbered lists: gradient numeral badges --- */
+.rich-text ol{
+  list-style:none;margin:0 0 22px;padding:0;
+  counter-reset:kc-rt-step;
+}
+.rich-text ol > li{
+  position:relative;
+  counter-increment:kc-rt-step;
+  padding:4px 0 4px 42px;margin-bottom:14px;
+  font-size:15.5px;line-height:1.65;
+}
+.rich-text ol > li::before{
+  content:counter(kc-rt-step);
+  position:absolute;left:0;top:2px;
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg, var(--primary), var(--secondary));
+  color:#fff;font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* Nested lists step back to plain markers — the decorated rows above are
+   for top-level items only, or nesting turns into visual noise. */
+.rich-text li ul, .rich-text li ol{margin:10px 0 0;padding-left:20px;counter-reset:none;}
+.rich-text li ul > li, .rich-text li ol > li{
+  border:none;padding:3px 0 3px 4px;margin:0;font-size:14.5px;
+  list-style:disc;
+}
+.rich-text li ul > li::before, .rich-text li ol > li::before{content:none;}
+.rich-text li ol > li{list-style:decimal;}
+
+/* --- quotes become pull-out callouts --- */
+.rich-text blockquote{
+  margin:0 0 22px;padding:18px 22px;
+  background:rgba(41,181,232,.07);
+  border:1px solid rgba(41,181,232,.2);
+  border-left:3px solid var(--primary);
+  border-radius:0 10px 10px 0;
+  color:var(--text);font-size:15.5px;
+}
+.rich-text blockquote > :last-child{margin-bottom:0;}
+
+/* --- links --- */
+.rich-text a{
+  color:var(--secondary);
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+  transition:color .15s ease;
+}
+.rich-text a:hover{color:var(--primary);}
+:root.light .rich-text a{color:var(--primary);}
+:root.light .rich-text a:hover{color:var(--accent);}
+
+.rich-text > :last-child{margin-bottom:0;}
+.rich-text-empty{color:var(--muted);font-style:italic;}
+
+@media (max-width:640px){
+  .rich-text{font-size:15.5px;}
+  .rich-text h3{font-size:19px;margin-top:34px;}
+  .rich-text > p:first-child{font-size:16.5px;}
+}
+
+/* Compact variant for the config-panel editor, so authoring previews the
+   real result at the narrower panel width instead of showing plain text. */
+.rich-text-compact{max-width:none;font-size:14px;line-height:1.7;}
+.rich-text-compact h3{font-size:16.5px;margin:22px 0 10px;padding-left:14px;}
+.rich-text-compact h4{font-size:14.5px;margin:18px 0 8px;}
+.rich-text-compact > p:first-child{font-size:14.5px;margin-bottom:16px;}
+.rich-text-compact p{margin:0 0 12px;}
+.rich-text-compact ul{margin-bottom:14px;}
+.rich-text-compact ul > li{font-size:13.5px;padding:8px 0 8px 26px;}
+.rich-text-compact ul > li::before{top:10px;font-size:10.5px;}
+.rich-text-compact ol{margin-bottom:14px;}
+.rich-text-compact ol > li{font-size:13.5px;padding-left:34px;margin-bottom:10px;}
+.rich-text-compact ol > li::before{width:22px;height:22px;font-size:11px;}
+.rich-text-compact blockquote{padding:12px 14px;font-size:13.5px;margin-bottom:14px;}
+
+/* ---------- rich-text editor (config panel) ---------- */
+.rt-toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:4px;
+  padding:6px;margin-bottom:-1px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:8px 8px 0 0;
+}
+.rt-btn{
+  background:none;border:1px solid transparent;
+  color:var(--muted);cursor:pointer;
+  width:28px;height:28px;border-radius:6px;
+  font-size:12px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .15s ease, color .15s ease;
+}
+.rt-btn:hover{background:var(--card-hover);color:var(--text);border-color:var(--border);}
+/* Labelled action rather than an icon-only toggle, so it reads as distinct
+   from the formatting buttons beside it. */
+.rt-btn-wide{
+  width:auto;padding:0 10px;gap:6px;
+  font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;
+  color:var(--secondary);
+}
+.rt-btn-wide:hover{color:var(--primary);}
+.rt-sep{
+  width:1px;height:18px;background:var(--border-strong);margin:0 3px;
+}
+.rt-editor{
+  min-height:150px;max-height:340px;overflow-y:auto;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);border-radius:0 0 8px 8px;
+  padding:14px 16px;
+  font-family:'Inter',sans-serif;
+  /* Size and rhythm come from .rich-text-compact on the same element —
+     deliberately not set here, or it would override the preview. */
+}
+.rt-editor:focus{outline:none;border-color:var(--secondary);}
+/* Typography for the editor comes from .rich-text + .rich-text-compact on
+   the same element, so what you type matches what ships. */
+.rt-note{display:block;margin-top:6px;}
 
 /* ---------- enrollment modal ---------- */
 .enroll-modal{
