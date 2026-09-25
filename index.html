@@ -116,7 +116,10 @@
         <div class="event-badge-top" id="heroCity">ONLINE</div>
         <div class="event-badge-bottom" id="heroDate">DATE TO BE ANNOUNCED</div>
       </div>
-      <a href="#courses" class="btn btn-event-ghost hero-secondary-link">See course details &amp; enroll</a>
+      <div class="hero-cta-row" id="heroCtaRow">
+        <a href="#course-details" class="btn btn-event-ghost hero-cta" id="heroDetailsBtn">See course details</a>
+        <a href="#courses" class="btn btn-event-solid hero-cta" id="heroEnrollBtn">Enroll for course</a>
+      </div>
     </div>
 
     <div class="event-hero-card">
@@ -163,6 +166,23 @@
     </div>
   </div>
 </header>
+
+<!-- Course details — rich text authored in Configuration → Hero banner.
+     The "See course details" hero button scrolls here. Both this section
+     and that button are shown/hidden together by js/hero-settings.js. -->
+<section id="course-details" class="reveal course-details-section">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span>COURSE DETAILS</div>
+      <h2 id="courseDetailsHeading" tabindex="-1">What this course covers</h2>
+    </div>
+    <!-- Populated from settings, sanitized before insertion -->
+    <div class="course-details-panel rich-text" id="courseDetailsBody"></div>
+    <div class="course-details-actions" id="courseDetailsFoot">
+      <a href="#courses" class="btn btn-cta-gradient" id="courseDetailsEnrollBtn">Enroll for course</a>
+    </div>
+  </div>
+</section>
 
 <section id="courses" class="reveal">
   <div class="container">
